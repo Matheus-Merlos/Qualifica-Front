@@ -16,12 +16,8 @@ body {
     padding: 1rem;
 
     .logo {
-      font-size: 1.5rem;
-      font-weight: bold;
-
-      span {
-        color: #000;
-      }
+      width: 10rem;
+      fill: #2c2c2c;
     }
 
     .search-bar {

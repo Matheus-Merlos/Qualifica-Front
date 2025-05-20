@@ -16,15 +16,11 @@ body {
     padding: 1rem;
 
     .logo {
-      font-size: 1.5rem;
-      font-weight: bold;
-
-      span {
-        color: #000;
-      }
+      width: 10rem;
+      fill: #2c2c2c;
     }
 
-    .search-bar {
+    .search-bar-top{
       flex: 1;
       margin: 0 1rem;
       padding: 0.6rem 1rem;
@@ -41,6 +37,16 @@ body {
     background-color: #ccc;
     padding: 1rem;
 
+    .search-bar-main{
+      flex: 1;
+      padding: 0.6rem 1rem;
+      border-radius: 20px;
+      border: none;
+      font-size: 1rem;
+      background-color: white;
+      display: none;
+    }
+
     .section {
       margin-bottom: 2rem;
 
@@ -52,8 +58,16 @@ body {
         display: flex;
         gap: 1rem;
         overflow-x: auto;
+        flex-wrap: nowrap;
+        scroll-snap-type: x mandatory;
+        -webkit-overflow-scrolling: touch;
+        flex-wrap: nowrap;
 
-        .card {
+        .card-continue,
+        .card-novidade {
+          flex: 0 0 auto;
+          width: 320px;
+          scroll-snap-align: start;
           display: flex;
           flex-direction: column;
           justify-content: end;
@@ -63,9 +77,8 @@ body {
           background-position: center top;
           border-radius: 32px;
           overflow: hidden;
-          width: 20vw;
-          height: 25vh;
           padding-bottom: 0.5rem;
+          height: 25vh;
 
           .card-info {
             padding: 0.5rem;
@@ -73,10 +86,12 @@ body {
             margin-top: 0px;
             width: 100%;
 
-            .card-info-text{
+            .card-info-text {
               display: flex;
               justify-content: space-between;
               margin-bottom: 0.5rem;
+              align-items: end;
+
               span {
                 font-weight: bold;
                 display: block;
@@ -100,6 +115,52 @@ body {
               }
             }
           }
+        }
+      }
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  body {
+    .top-bar {
+      flex-direction: column;
+      align-items: stretch;
+      height: auto;
+
+      .search-bar-top {
+        display: none;
+      }
+    }
+
+    main {
+      padding: 1rem 0.5rem;
+
+      .search-bar-main {
+        display: block;
+        margin: 0 0 0.5rem 0;
+        width: 100%;
+        max-width: none;
+      }
+
+      .section .card-row {
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        scroll-snap-type: x mandatory;
+        -webkit-overflow-scrolling: touch;
+
+        .card-continue {
+          flex: 0 0 40%;
+          scroll-snap-align: start;
+          width: auto;
+          height: 25vh;
+        }
+
+        .card-novidade {
+          flex: 0 0 40%;
+          scroll-snap-align: start;
+          width: auto;
+          height: 40vw;
         }
       }
     }
