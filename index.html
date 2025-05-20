@@ -1,62 +1,13 @@
-<!DOCTYPE html>
-<html lang="pt-BR">
-
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Qualifica+</title>
-  <link rel="stylesheet" href="style.css" />
-</head>
-
-<body>
-  <div class="container">
-    <div class="form-box">
-      <h1 class="logo">Qualifica<span>+</span></h1>
-
-      <div class="tab-buttons">
-        <button class="tab active" onclick="showForm('login')">Login</button>
-        <button class="tab" onclick="showForm('cadastro')">Cadastro</button>
-      </div>
-
-      <form id="login-form" class="form active">
-        <label for="login-email">Seu e-mail</label>
-        <input type="email" id="login-email" required />
-        
-        <label for="login-password">Sua senha</label>
-        <input type="password" id="login-password" required />
-        
-        <label class="checkbox">
-          <input type="checkbox" class="input-checkbox" /> Lembrar meu login
-        </label>
-        
-        <button type="submit">Entrar</button>
-        
-        <div class="social-buttons">
-          <button class="google">
-            <img src="assets/google.png" alt="Google" /> Entrar com Google
-          </button>
-          <button type="button" class="apple">
-            <img src="assets/apple.png" alt="Apple" /> Entrar com Apple
-          </button>
-        </div>
-      </form>
-
-      <form id="cadastro-form" class="form">
-        <label for="cadastro-email">Seu e-mail</label>
-        <input type="email" id="cadastro-email" required />
-        
-        <label for="cadastro-password">Sua senha</label>
-        <input type="password" id="cadastro-password" required />
-        
-        <label for="cadastro-confirm-password">Confirmar senha</label>
-        <input type="password" id="cadastro-confirm-password" required />
-        
-        <button type="submit">Cadastrar</button>
-      </form>
-    </div>
-  </div>
-
-  <script src="script.js"></script>
-</body>
-
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Qualifica+</title>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
 </html>
