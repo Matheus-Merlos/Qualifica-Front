@@ -56,7 +56,7 @@ jobs:
           webhook_id: ${{ secrets.DISCORD_DEPLOYMENT_WEBHOOK_ID }}
           webhook_token: ${{ secrets.DISCORD_DEPLOYMENT_WEBHOOK_TOKEN }}
           message: |
-            ## :package: Novo Deployment para o ambiente de **Test**
+            ## :package: Novo Deployment do Website para o ambiente de **Test**
             > ✦ **Versão da imagem:** ${{ github.run_number }}
-            > ✦ **Link:** https://api.test.qualificamais.app.br/
+            > ✦ **Link:** https://www.test.qualificamais.app.br/
             > ✦ **Autor:** **${{ github.actor }}**
