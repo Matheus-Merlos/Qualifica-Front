@@ -34,10 +34,12 @@ jobs:
           npm run build
 
       - name: Copiar arquivos para o Bucket S3
-        run: aws s3 sync dist/ s3://www.test.qualificamais.app.br \
-               --region us-east-1 \
-               --acl public-read \
-               --delete \
+        run: |
+            aws s3 sync dist/ s3://www.test.qualificamais.app.br \
+              --region us-east-1 \
+              --acl public-read \
+              --delete
+
 
       # Limpa o cache de arquivos antigos
       - name: Create cloudfront invalidation
