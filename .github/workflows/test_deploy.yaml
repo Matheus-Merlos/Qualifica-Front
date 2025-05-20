@@ -1,0 +1,44 @@
+name: Deploy para ambiente de test
+
+on:
+  push:
+    branches:
+      - '**'
+    paths:
+      - 'src/**'
+  workflow_dispatch:
+
+jobs:
+  build-and-deploy-app:
+    name: Buildar e fazer o Deploy da aplicação
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.TERRAFORM_AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.TERRAFORM_AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
+
+      - name: Setup nodejs
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Build da aplicação
+        run: |
+          npm ci
+          npm run build
+
+      - name: Copiar arquivos para o Bucket S3
+        run: aws s3 sync dist/ s3://www.test.qualificamais.app.br \
+               --region us-east-1 \
+               --acl public-read \
+               --delete \
+
+      # Limpa o cache de arquivos antigos
+      - name: Create cloudfront invalidation
+        run: aws cloudfront create-invalidation --distribution-id ${{ secrets.CLOUDFRONT_DISTRIBUTION_ID }} --paths "/*"
