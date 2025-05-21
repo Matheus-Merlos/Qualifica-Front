@@ -10,11 +10,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Send message
-        uses: appleboy/discord-action@v1.2.0
+        uses: Ilshidur/action-discord@master
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.PR_CHANNEL_DISCORD_WEBHOOK }}
         with:
-          webhook_id: ${{ secrets.DISCORD_WEBHOOK_ID }}
-          webhook_token: ${{ secrets.DISCORD_WEBHOOK_TOKEN }}
-          message: |
+          args: |
             ## :compression: Novo PR Aberto!
             <@513797646058782720> <@329388486920765442>
             > ✦ **Título:** ${{ github.event.pull_request.title }}

@@ -46,16 +46,15 @@ jobs:
         run: aws cloudfront create-invalidation --distribution-id ${{ secrets.CLOUDFRONT_DISTRIBUTION_ID }} --paths "/*"
 
   enviar-mensagem:
-    name: Enviar mensagem no discord
+    name: Enviar mensagem
     runs-on: ubuntu-latest
-    needs: [build-and-deploy-app]
     steps:
       - name: Send message
-        uses: appleboy/discord-action@v1.2.0
+        uses: Ilshidur/action-discord@master
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DEPLOY_CHANNEL_DISCORD_WEBHOOK }}
         with:
-          webhook_id: ${{ secrets.DISCORD_DEPLOYMENT_WEBHOOK_ID }}
-          webhook_token: ${{ secrets.DISCORD_DEPLOYMENT_WEBHOOK_TOKEN }}
-          message: |
+          args: |
             ## :package: Novo Deployment do Website para o ambiente de **Test**
             > ✦ **Versão da imagem:** ${{ github.run_number }}
             > ✦ **Link:** https://www.test.qualificamais.app.br/
