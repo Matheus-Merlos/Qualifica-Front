@@ -6,8 +6,14 @@
 
 body {
   font-family: Arial, sans-serif;
+  overflow-x: hidden;
+}
 
-  .top-bar {
+.top-bar {
+  display: flex;
+  justify-content: space-between;
+
+  .left {
     display: flex;
     align-items: center;
     justify-content: start;
@@ -20,7 +26,7 @@ body {
       fill: #2c2c2c;
     }
 
-    .search-bar {
+    .search-bar-top {
       flex: 1;
       margin: 0 1rem;
       padding: 0.6rem 1rem;
@@ -32,22 +38,83 @@ body {
     }
   }
 
-  .course-container {
-    min-height: 93vh;
-    padding: 1rem;
-    background-color: #ccc;
+  .right {
     display: flex;
-    flex-wrap: wrap;
-    gap: 2rem;
-    align-items: flex-start;
+    align-items: center;
+    justify-content: center;
+
+    .profile-card {
+      position: absolute;
+      top: 3vh;
+      right: 3vh;
+      background-color: white;
+      border-radius: 32px;
+      border-top-right-radius: 0;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+      width: 300px;
+      display: none;
+      z-index: 1000;
+
+      .profile-header {
+        display: flex;
+        align-items: center;
+        padding: 10px;
+
+        .profile-picture-large {
+          width: 40px;
+          height: 40px;
+          border-radius: 50%;
+          margin-right: 10px;
+        }
+      }
+
+      .profile-options {
+        list-style: none;
+        padding: 10px;
+
+        li {
+          padding: 8px;
+          cursor: pointer;
+          display: block;
+
+          &:hover {
+            border-radius: 16px;
+            background-color: #f0f0f0;
+          }
+        }
+      }
+    }
+
+    img {
+      width: 6vh;
+      height: 6vh;
+      cursor: pointer;
+    }
+  }
+}
+
+.course-container {
+  width: 100%;
+  height: 93vh;
+  background-color: #e2e2e2;
+  display: flex;
+  justify-content: space-evenly;
+
+  .main-left {
+    display: flex;
+    flex-direction: column;
+    width: 62.5vw;
+    height: 93vh;
+    justify-content: space-evenly;
 
     .video-box {
       flex: 1;
       position: relative;
-      max-width: 60vw;
+      max-height: calc(62.5vw / 16 * 9);
 
       img {
         width: 100%;
+        height: calc(62.5vw / 16 * 9);
         border-radius: 12px;
         object-fit: cover;
       }
@@ -55,10 +122,9 @@ body {
       .play-bar {
         position: absolute;
         bottom: 0;
-        margin-bottom: 4px;
         left: 0;
         width: 100%;
-        height: 12%;
+        height: 8%;
         background-color: rgba(0, 0, 0, 0.5);
         color: white;
         display: flex;
@@ -68,7 +134,6 @@ body {
         cursor: pointer;
         transition: background-color 0.3s ease;
         border-radius: 0 0 12px 12px;
-        z-index: 2;
 
         &:hover {
           background-color: rgba(0, 0, 0, 0.7);
@@ -77,12 +142,11 @@ body {
     }
 
     .course-info {
-      align-items: center;
-      justify-content: center;
       background-color: white;
       padding: 1rem;
       border-radius: 12px;
-      max-width: 30vw;
+      width: 100%;
+      height: auto;
       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 
       h2 {
@@ -102,7 +166,7 @@ body {
 
         div {
           height: 100%;
-          background-color: #1a73e8;
+          background-color: #2f2f2f;
           width: 0%;
         }
       }
@@ -111,6 +175,154 @@ body {
         display: block;
         margin-top: 0.4rem;
         font-weight: bold;
+      }
+    }
+  }
+
+  .main-right {
+    display: flex;
+    flex-direction: column;
+    width: calc(100vw - 62.5vw - 3rem);
+    height: 93vh;
+    justify-content: space-evenly;
+
+    .btn-certificado {
+      width: 100%;
+      background-color: #428d2f;
+      color: white;
+      font-size: 1.2rem;
+      font-weight: 700;
+      border: none;
+      border-radius: 32px;
+      padding: 1.5rem 1.1rem;
+      cursor: pointer;
+      margin-bottom: 1rem;
+
+      &:hover {
+        background-color: darken(#1a73e8, 10%);
+      }
+    }
+
+    .capitulos {
+      background-color: white;
+      border-radius: 32px;
+      padding: 1rem;
+
+      h3 {
+        font-size: 1.5rem;
+        margin: 1rem 0;
+      }
+
+      .lista {
+        display: flex;
+        flex-direction: column;
+        align-items: stretch;
+        max-height: 70vh;
+        overflow-y: auto;
+
+        .card {
+          display: flex;
+          align-items: center;
+          width: 100%;
+          justify-content: space-between;
+          height: 6rem;
+          padding: 0.5rem;
+          margin-top: 1rem;
+          background-color: #e2e2e2;
+          border-radius: 10px;
+
+          .left {
+            display: flex;
+            font-size: 0.95rem;
+            height: 100%;
+
+            img {
+              width: 4rem;
+              height: 4rem;
+              border-radius: 8px;
+            }
+
+            .text {
+              display: flex;
+              flex-direction: column;
+              flex: 1;
+              height: 100%;
+              justify-content: space-between;
+              padding-left: 1rem;
+
+              h3 {
+                font-size: 1.2rem;
+              }
+
+              p {
+                font-size: 0.9rem;
+                color: #666;
+              }
+            }
+          }
+
+          h3 {
+            font-size: 1.2rem;
+            margin: 0;
+          }
+        }
+      }
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .course-container {
+    flex-direction: column;
+    align-items: center;
+    padding: 0.5rem 0;
+    gap: 0.5rem;
+    height: auto;
+
+    .main-left {
+      width: calc(100vw - 1rem);
+      height: auto;
+      gap: 0.5rem;
+
+      .video-box {
+        max-height: calc((100vw - 1rem) / 16 * 9);
+
+        img {
+          width: calc(100vw - 1rem);
+          height: calc((100vw - 1rem) / 16 * 9);
+        }
+
+        .play-bar {
+          height: 20%;
+        }
+      }
+    }
+
+    .main-right {
+      align-items: center;
+      width: calc(100vw - 1rem);
+      gap: 0.5rem;
+      height: auto;
+
+      .btn-certificado {
+        padding: 0.9rem;
+        font-size: 1rem;
+        margin-bottom: 0;
+      }
+
+      .capitulos {
+        width: 100%;
+        overflow-y: visible !important;
+
+        .lista {
+          overflow-y: visible;
+          flex-grow: 1;
+          max-height: none;
+
+          .card {
+            margin-top: 0.5rem;
+          }
+        }
       }
     }
   }
