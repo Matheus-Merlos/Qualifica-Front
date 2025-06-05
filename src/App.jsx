@@ -1,13 +1,15 @@
 import Login from './components/Login'
 // import Curso from './components/Curso'
 // import Home from './components/Home'
+import { BrowserRouter, Route, Routes } from 'react-router-dom'
 
 function App() {
-
   return (
-    <>
-      <Login />
-    </>
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<Login />} />
+      </Routes>
+    </BrowserRouter>
   )
 }
 
