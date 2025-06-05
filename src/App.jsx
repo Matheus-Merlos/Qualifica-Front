@@ -1,4 +1,4 @@
-import Login from './Components/Login'
+import Login from './components/Login'
 // import Curso from './components/Curso'
 // import Home from './components/Home'
 
