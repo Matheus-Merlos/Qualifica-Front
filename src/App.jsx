@@ -1,11 +1,13 @@
+import Login from './components/Login'
+// import Curso from './components/Curso'
+// import Home from './components/Home'
 import { BrowserRouter, Route, Routes } from 'react-router-dom'
-import StartPage from './pages/startPage'
 
 function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<StartPage />} />
+        <Route path="/" element={<Login />} />
       </Routes>
     </BrowserRouter>
   )
