@@ -1,4 +1,4 @@
-import Login from './components/Login'
+import Login from './Login'
 // import Curso from './components/Curso'
 // import Home from './components/Home'
 import { BrowserRouter, Route, Routes } from 'react-router-dom'
