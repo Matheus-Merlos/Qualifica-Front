@@ -1,7 +1,7 @@
-import Login from './components/Login'
+import Login from './pages/Login';
 // import Curso from './components/Curso'
 // import Home from './components/Home'
-import { BrowserRouter, Route, Routes } from 'react-router-dom'
+import { BrowserRouter, Route, Routes } from 'react-router-dom';
 
 function App() {
   return (
@@ -13,4 +13,4 @@ function App() {
   )
 }
 
-export default App
+export default App;

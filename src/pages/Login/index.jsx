@@ -1,4 +1,4 @@
-import "./styles.css"
+import "./styles.css";
 
 export default function Login() {
   function showForm(type) {
@@ -16,6 +16,7 @@ export default function Login() {
 
   return (
     <div className="container">
+      <img src="/fundo.jpg" alt="Computação" className="background-image" />
       <div className="logo-container">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 150">
           <g transform="matrix(1, 0, 0, 1, 352.690002, 130.78949)">
