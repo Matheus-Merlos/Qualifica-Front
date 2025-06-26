@@ -1,19 +1,37 @@
+import axios from "axios";
+import React, { useState } from "react";
 import "./styles.css";
 
 export default function Login() {
-  function showForm(type) {
-    const forms = {
-      login: document.getElementById('login-form'),
-      cadastro: document.getElementById('cadastro-form')
-    };
-    const tabs = document.querySelectorAll(`.tab`);
+  const [loginEmail, setLoginEmail] = useState("");
+  const [loginPassword, setLoginPassword] = useState("");
+  const [registerEmail, setRegisterEmail] = useState("");
+  const [registerPassword, setRegisterPassword] = useState("");
+  const [registerConfirmPassword, setRegisterConfirmPassword] = useState("");
 
-    Object.keys(forms).forEach(key => {
-      forms[key].classList.toggle("active", key === type);
-      tabs[key === 'login' ? 0 : 1].classList.toggle("active", key === type);
-    });
+  const [isLogin, setIsLogin] = useState(true)
+  
+  function handleChangeForm(isLoginForm) {
+    setIsLogin(isLoginForm);
   }
 
+  async function handleLoginSubmit(event) {
+    event.preventDefault();
+    const response = await axios.post("https://api.test.qualificamais.app.br/user/login", {
+      email: loginEmail,
+      password: loginPassword
+    });
+    console.log(response);
+  }
+
+  async function handleRegisterSubmit(event) {
+    event.preventDefault();
+    await axios.post("https://api.test.qualificamais.app.br/user/register", {
+      email: registerEmail,
+      password: registerPassword,
+      
+    });
+  }
   return (
     <div className="container">
       <img src="/fundo.jpg" alt="Computação" className="background-image" />
@@ -82,45 +100,35 @@ export default function Login() {
         </div>
 
         <div className="tab-buttons">
-          <button className="tab active" onClick={() => showForm('login')}>Login</button>
-          <button className="tab" onClick={() => showForm('cadastro')}>Cadastro</button>
+          <button className={`tab ${isLogin && "active"}`} onClick={() => handleChangeForm(true)}>Login</button>
+          <button className={`tab ${!isLogin && "active"}`} onClick={() => handleChangeForm(false)}>Cadastro</button>
         </div>
 
-        <form id="login-form" className={`form active`}>
+        {isLogin ? (<form id="login-form" className="form active" onSubmit={handleLoginSubmit}>
           <label htmlFor="login-email">Seu e-mail</label>
-          <input type="email" id="login-email" required />
+          <input type="email" id="login-email" value={loginEmail} onChange={e => setLoginEmail(e.target.value)
+          } required />
 
           <label htmlFor="login-password">Sua senha</label>
-          <input type="password" id="login-password" required />
+          <input type="password" id="login-password" value={loginPassword} onChange={e => setLoginPassword(e.target.value)} required />
 
           <label className="checkbox">
             <input type="checkbox" className="input-checkbox" /> Lembrar meu login
           </label>
 
           <button type="submit">Entrar</button>
-
-          <div className="social-buttons">
-            <button className="google">
-              <img src="/google.png" alt="Google" /> Entrar com Google
-            </button>
-            <button type="button" className="apple">
-              <img src="/apple.png" alt="Apple" /> Entrar com Apple
-            </button>
-          </div>
-        </form>
-
-        <form id="cadastro-form" className={`form`}>
+        </form>) : <form id="cadastro-form" className={`form ${!isLogin && "active"}`} onSubmit={handleRegisterSubmit}>
           <label htmlFor="cadastro-email">Seu e-mail</label>
-          <input type="email" id="cadastro-email" required />
+          <input type="email" id="cadastro-email" value={registerEmail} onChange={e => setRegisterEmail(e.target.value)} required />
 
           <label htmlFor="cadastro-password">Sua senha</label>
-          <input type="password" id="cadastro-password" required />
+          <input type="password" id="cadastro-password" value={registerPassword} onChange={e => setRegisterPassword(e.target.value)} required />
 
           <label htmlFor="cadastro-confirm-password">Confirmar senha</label>
-          <input type="password" id="cadastro-confirm-password" required />
+          <input type="password" id="cadastro-confirm-password" value={registerConfirmPassword} onChange={e => setRegisterConfirmPassword(e.target.value)} required />
 
           <button type="submit">Cadastrar</button>
-        </form>
+        </form>}
       </div>
     </div>
   );
