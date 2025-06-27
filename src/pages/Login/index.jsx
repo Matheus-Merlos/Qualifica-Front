@@ -1,35 +1,35 @@
-import axios from "axios";
-import React, { useState } from "react";
-import "./styles.css";
+import axios from 'axios';
+import React, { useState } from 'react';
+import './styles.css';
 
 export default function Login() {
-  const [loginEmail, setLoginEmail] = useState("");
-  const [loginPassword, setLoginPassword] = useState("");
-  const [registerEmail, setRegisterEmail] = useState("");
-  const [registerPassword, setRegisterPassword] = useState("");
-  const [registerConfirmPassword, setRegisterConfirmPassword] = useState("");
+  const [loginEmail, setLoginEmail] = useState('');
+  const [loginPassword, setLoginPassword] = useState('');
 
-  const [isLogin, setIsLogin] = useState(true)
-  
+  const [registerEmail, setRegisterEmail] = useState('');
+  const [registerPassword, setRegisterPassword] = useState('');
+  const [registerConfirmPassword, setRegisterConfirmPassword] = useState('');
+
+  const [isLogin, setIsLogin] = useState(true);
+
   function handleChangeForm(isLoginForm) {
     setIsLogin(isLoginForm);
   }
 
   async function handleLoginSubmit(event) {
     event.preventDefault();
-    const response = await axios.post("https://api.test.qualificamais.app.br/user/login", {
+    const response = await axios.post('https://api.test.qualificamais.app.br/user/login', {
       email: loginEmail,
-      password: loginPassword
+      password: loginPassword,
     });
     console.log(response);
   }
 
   async function handleRegisterSubmit(event) {
     event.preventDefault();
-    await axios.post("https://api.test.qualificamais.app.br/user/register", {
+    await axios.post('https://api.test.qualificamais.app.br/user/register', {
       email: registerEmail,
       password: registerPassword,
-      
     });
   }
   return (
@@ -100,35 +100,76 @@ export default function Login() {
         </div>
 
         <div className="tab-buttons">
-          <button className={`tab ${isLogin && "active"}`} onClick={() => handleChangeForm(true)}>Login</button>
-          <button className={`tab ${!isLogin && "active"}`} onClick={() => handleChangeForm(false)}>Cadastro</button>
+          <button className={`tab ${isLogin && 'active'}`} onClick={() => handleChangeForm(true)}>
+            Login
+          </button>
+          <button className={`tab ${!isLogin && 'active'}`} onClick={() => handleChangeForm(false)}>
+            Cadastro
+          </button>
         </div>
 
-        {isLogin ? (<form id="login-form" className="form active" onSubmit={handleLoginSubmit}>
-          <label htmlFor="login-email">Seu e-mail</label>
-          <input type="email" id="login-email" value={loginEmail} onChange={e => setLoginEmail(e.target.value)
-          } required />
+        {isLogin ? (
+          <form id="login-form" className="form active" onSubmit={handleLoginSubmit}>
+            <label htmlFor="login-email">Seu e-mail</label>
+            <input
+              type="email"
+              id="login-email"
+              value={loginEmail}
+              onChange={(e) => setLoginEmail(e.target.value)}
+              required
+            />
 
-          <label htmlFor="login-password">Sua senha</label>
-          <input type="password" id="login-password" value={loginPassword} onChange={e => setLoginPassword(e.target.value)} required />
+            <label htmlFor="login-password">Sua senha</label>
+            <input
+              type="password"
+              id="login-password"
+              value={loginPassword}
+              onChange={(e) => setLoginPassword(e.target.value)}
+              required
+            />
 
-          <label className="checkbox">
-            <input type="checkbox" className="input-checkbox" /> Lembrar meu login
-          </label>
+            <label className="checkbox">
+              <input type="checkbox" className="input-checkbox" /> Lembrar meu login
+            </label>
 
-          <button type="submit">Entrar</button>
-        </form>) : <form id="cadastro-form" className={`form ${!isLogin && "active"}`} onSubmit={handleRegisterSubmit}>
-          <label htmlFor="cadastro-email">Seu e-mail</label>
-          <input type="email" id="cadastro-email" value={registerEmail} onChange={e => setRegisterEmail(e.target.value)} required />
+            <button type="submit">Entrar</button>
+          </form>
+        ) : (
+          <form
+            id="cadastro-form"
+            className={`form ${!isLogin && 'active'}`}
+            onSubmit={handleRegisterSubmit}
+          >
+            <label htmlFor="cadastro-email">Seu e-mail</label>
+            <input
+              type="email"
+              id="cadastro-email"
+              value={registerEmail}
+              onChange={(e) => setRegisterEmail(e.target.value)}
+              required
+            />
 
-          <label htmlFor="cadastro-password">Sua senha</label>
-          <input type="password" id="cadastro-password" value={registerPassword} onChange={e => setRegisterPassword(e.target.value)} required />
+            <label htmlFor="cadastro-password">Sua senha</label>
+            <input
+              type="password"
+              id="cadastro-password"
+              value={registerPassword}
+              onChange={(e) => setRegisterPassword(e.target.value)}
+              required
+            />
 
-          <label htmlFor="cadastro-confirm-password">Confirmar senha</label>
-          <input type="password" id="cadastro-confirm-password" value={registerConfirmPassword} onChange={e => setRegisterConfirmPassword(e.target.value)} required />
+            <label htmlFor="cadastro-confirm-password">Confirmar senha</label>
+            <input
+              type="password"
+              id="cadastro-confirm-password"
+              value={registerConfirmPassword}
+              onChange={(e) => setRegisterConfirmPassword(e.target.value)}
+              required
+            />
 
-          <button type="submit">Cadastrar</button>
-        </form>}
+            <button type="submit">Cadastrar</button>
+          </form>
+        )}
       </div>
     </div>
   );

@@ -1,3 +1,4 @@
+import React from 'react';
 import Login from './pages/Login';
 // import Curso from './components/Curso'
 // import Home from './components/Home'
@@ -10,7 +11,7 @@ function App() {
         <Route path="/" element={<Login />} />
       </Routes>
     </BrowserRouter>
-  )
+  );
 }
 
 export default App;
