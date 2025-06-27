@@ -14,6 +14,7 @@ function App() {
         {/* nova rota → tela Home */}
         <Route path="/home" element={<Home />} />
         <Route path="/curso" element={<Curso />} />
+        <Route path="/course/:id" element={<Curso />} />
       </Routes>
     </BrowserRouter>
   );

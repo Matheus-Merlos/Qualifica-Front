@@ -1,76 +1,270 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
+import api from '../../api';
 import './styles.css';
 
 export default function Home() {
-  const [isProfileCardVisible, setProfileCardVisible] = useState(false);
-  const profileCardRef = useRef(null);
-  const profilePictureRef = useRef(null);
-  const overlayRef = useRef(null);
+  /* ­---------------- profile pop-up ---------------- */
+  const [visible, setVisible] = useState(false);
+  const [isSearching, setIsSearching] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [courses, setCourses] = useState([]);
+  const [continueCourses, setContinueCourses] = useState([]);
+  const [newCourses, setNewCourses] = useState([]);
+  const [error, setError] = useState(null);
+  const cardRef = useRef(null);
+  const pictureRef = useRef(null);
+  const searchRef = useRef(null);
+  const searchOverlayRef = useRef(null);
 
-  const navigate = useNavigate();
-
-  const toggleProfileCard = () => setProfileCardVisible((v) => !v);
+  const toggleCard = () => setVisible((v) => !v);
 
   useEffect(() => {
-    const handleClickOutside = (e) => {
+    const close = (e) => {
       if (
-        profileCardRef.current &&
-        !profileCardRef.current.contains(e.target) &&
-        profilePictureRef.current &&
-        !profilePictureRef.current.contains(e.target)
+        cardRef.current &&
+        !cardRef.current.contains(e.target) &&
+        pictureRef.current &&
+        !pictureRef.current.contains(e.target)
       ) {
-        setProfileCardVisible(false);
+        setVisible(false);
       }
     };
-    window.addEventListener('click', handleClickOutside);
-    return () => window.removeEventListener('click', handleClickOutside);
+    window.addEventListener('click', close);
+    return () => window.removeEventListener('click', close);
   }, []);
+
+  const fetchCourses = async () => {
+    try {
+      const response = await api.get('/course', {
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+      const allCourses = response.data;
+      
+      // Separar cursos em continue e novos
+      const [continueCourses, newCourses] = allCourses.reduce((acc, course) => {
+        if (course.progress > 0) {
+          acc[0].push(course);
+        } else {
+          acc[1].push(course);
+        }
+        return acc;
+      }, [[], []]);
+
+      setCourses(allCourses);
+      setContinueCourses(continueCourses);
+      setNewCourses(newCourses);
+      setError('');
+    } catch (err) {
+      setError('Erro ao carregar cursos');
+    }
+  };
+
+  useEffect(() => {
+    fetchCourses();
+  }, []);
+
+  const handleSearch = async (e) => {
+    const query = e.target.value.trim();
+    setSearchQuery(query);
+    
+    try {
+      if (query) {
+        const response = await api.get(`/course`, {
+          params: {
+            q: query,
+            limit: 25
+          }
+        });
+        setCourses(response.data);
+      } else {
+        // Se a busca estiver vazia, recarrega a lista completa
+        fetchCourses();
+      }
+      setError('');
+    } catch (err) {
+      console.error('Erro ao buscar cursos:', err);
+      setError('Erro ao pesquisar cursos. Tente novamente.');
+    }
+  };
+
+  /* ­---------------- UI ---------------- */
+  const handleClickOutside = useCallback((event) => {
+    // Se o overlay de busca está aberto
+    if (isSearching) {
+      // Se clicou fora do overlay E fora do campo de busca
+      if (
+        searchOverlayRef.current && 
+        !searchOverlayRef.current.contains(event.target) &&
+        searchRef.current && 
+        !searchRef.current.contains(event.target)
+      ) {
+        setIsSearching(false);
+        setSearchQuery('');
+      }
+    }
+  }, [isSearching]);
+
+  // Adiciona evento de tecla ESC
+  const handleKeyDown = useCallback((event) => {
+    if (event.key === 'Escape' && isSearching) {
+      setIsSearching(false);
+      setSearchQuery('');
+    }
+  }, [isSearching]);
+
+  useEffect(() => {
+    // Adiciona listeners quando o componente monta
+    document.addEventListener('mousedown', handleClickOutside);
+    document.addEventListener('keydown', handleKeyDown);
+    
+    // Remove listeners quando o componente desmonta
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [handleClickOutside, handleKeyDown]);
+
+  // Focar no input quando a busca for ativada
+  useEffect(() => {
+    if (isSearching && searchRef.current) {
+      const input = searchRef.current.querySelector('input');
+      if (input) input.focus();
+    }
+  }, [isSearching]);
+
+  /* ­---------------- course navigation ---------------- */
+  const navigate = useNavigate();
+
+  const openCourse = (courseId) => {
+    console.log('Navegando para o curso ID:', courseId);
+    navigate(`/course/${courseId}`);
+    setIsSearching(false);
+    setSearchQuery('');
+  };
+
+
 
   return (
     <>
-      {/* --- top-bar omitido para brevidade --- */}
-
-      <main>
-        {/* barra de pesquisa */}
-        <input type="text" placeholder="Clique aqui para pesquisar" className="search-bar-main" />
-
-        {/* seção “continue de onde parou” */}
-        <section className="section">
-          <h2>Continue de onde parou</h2>
-          <div className="card-row">
-            {/* card 1 → abre o curso */}
-            <div className="card-continue" onClick={() => navigate('/curso')}>
-              <div className="card-info">
-                <div className="card-info-text">
-                  <span>Computação</span>
-                  <span style={{ fontSize: '0.7rem' }}>50%</span>
-                </div>
-                <div className="progress-bar">
-                  <div style={{ width: '50%' }} />
-                </div>
+      <div className="course-search">
+        {error && (
+          <div className="error-message" style={{
+            background: '#f8d7da',
+            color: '#dc3545',
+            padding: '1rem',
+            borderRadius: '8px',
+            marginBottom: '1rem',
+            textAlign: 'center'
+          }}>
+            {error}
+          </div>
+        )}
+        <header className="top-bar">
+          <div className="left">
+            <h1 className="logo-text">
+              Qualifica<span>+</span>
+            </h1>
+            <div className="search-wrap" ref={searchRef}>
+              <div className="search-box">
+                <input 
+                  type="text" 
+                  placeholder={isSearching ? "Digite para pesquisar cursos..." : "Clique aqui para pesquisar"}
+                  className="search-bar-top"
+                  value={searchQuery}
+                  onChange={handleSearch}
+                  onFocus={() => setIsSearching(true)}
+                />
               </div>
             </div>
-
-            {/* cards 2 e 3 mantêm comportamento antigo */}
-            <div className="card-continue">{/* ... */}</div>
-            <div className="card-continue">{/* ... */}</div>
           </div>
-        </section>
-
-        {/* seção “Novidades para você” – intacta */}
-        <section className="section">
-          <h2>Novidades para você</h2>
-          <div className="card-row">{/* ... */}</div>
-        </section>
-      </main>
-
-      {/* overlay para o profile card */}
-      <div
-        className="overlay"
-        style={{ display: isProfileCardVisible ? 'block' : 'none' }}
-        ref={overlayRef}
-      />
+          <div className="right">
+            <div
+              className="profile-card"
+              ref={cardRef}
+              style={{ display: visible ? 'block' : 'none' }}
+            >
+              <div className="profile-header">
+                <img src="/google.png" alt="Perfil" className="profile-picture-large" />
+                <h3>Yuri Alberto</h3>
+              </div>
+              <hr />
+              <ul className="profile-options">
+                <li>Meus Dados</li>
+                <li>Meus Cursos</li>
+                <li>Configurações</li>
+                <li className="logout">Sair</li>
+              </ul>
+            </div>
+            <img
+              src="/google.png"
+              alt="Perfil"
+              className="profile-picture"
+              ref={pictureRef}
+              onClick={toggleCard}
+            />
+          </div>
+        </header>
+        <main className={`home-container ${isSearching ? 'search-active' : ''}`}>
+          {isSearching && (
+            <div className="search-overlay" ref={searchOverlayRef}>
+              <div className="search-results">
+                {courses.map((course) => (
+                  <div key={course.id} className="result-item" onClick={() => openCourse(course.id)}>
+                    <img src={course.image || '/placeholder-course.png'} alt={course.name} />
+                    <div className="result-info">
+                      <span className="title">{course.name}</span>
+                      <span className="level">
+                        {course.progress ? `${course.progress}% concluído` : 'Novo'}
+                      </span>
+                    </div>
+                  </div>
+                ))}
+                {courses.length === 0 && (
+                  <div className="no-results">Nenhum curso encontrado</div>
+                )}
+              </div>
+            </div>
+          )}
+          <section>
+            <h2>Continue de onde parou</h2>
+            <div className="card-row">
+              {continueCourses.map((course) => (
+                <div key={course.id} className="course-card" onClick={() => openCourse(course.id)}>
+                  <img src={course.image || '/placeholder-course.png'} alt={course.name} />
+                  <div className="overlay">
+                    <span>{course.name}</span>
+                    <span>{course.progress || 0}%</span>
+                  </div>
+                  <div className="progress">
+                    <div style={{ width: `${course.progress || 0}%` }} />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </section>
+          <section>
+            <h2>Novidades para você</h2>
+            <div className="card-row">
+              {newCourses.map((course) => (
+                <div key={course.id} className="course-card" onClick={() => openCourse(course.id)}>
+                  <img src={course.image || '/placeholder-course.png'} alt={course.name} />
+                  <div className="overlay">
+                    <span>{course.name}</span>
+                    <span>Novo</span>
+                  </div>
+                  <div className="progress">
+                    <div style={{ width: '0%' }} />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </section>
+        </main>
+      </div>
+      {visible && <div className="overlay-backdrop" />}
     </>
   );
 }
