@@ -10,7 +10,7 @@ function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<Curso />} />
+        <Route path="/" element={<Login />} />
       </Routes>
     </BrowserRouter>
   );

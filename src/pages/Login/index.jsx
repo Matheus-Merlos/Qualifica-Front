@@ -9,6 +9,9 @@ export default function Login() {
   const [registerEmail, setRegisterEmail] = useState('');
   const [registerPassword, setRegisterPassword] = useState('');
   const [registerConfirmPassword, setRegisterConfirmPassword] = useState('');
+  const [registerName, setRegisterName] = useState('');
+  const [registerBio, setRegisterBio] = useState('');
+  const [registerBirthdate, setRegisterBirthdate] = useState('');
 
   const [isLogin, setIsLogin] = useState(true);
 
@@ -27,10 +30,22 @@ export default function Login() {
 
   async function handleRegisterSubmit(event) {
     event.preventDefault();
-    await axios.post('https://api.test.qualificamais.app.br/user/register', {
-      email: registerEmail,
-      password: registerPassword,
-    });
+
+    const [day, month, year] = registerBirthdate.split('/');
+
+    try {
+      const response = await axios.post('https://api.test.qualificamais.app.br/user/register', {
+        name: registerName,
+        email: registerEmail,
+        password: registerPassword,
+        birthdate: `${year}-${month}-${day}`,
+        bio: registerBio,
+      });
+
+      console.log(response.data);
+    } catch (error) {
+      console.error(error.response.data);
+    }
   }
   return (
     <div className="container">
@@ -140,6 +155,15 @@ export default function Login() {
             className={`form ${!isLogin && 'active'}`}
             onSubmit={handleRegisterSubmit}
           >
+            <label htmlFor="cadastro-name">Nome completo</label>
+            <input
+              type="text"
+              id="cadastro-name"
+              value={registerName}
+              onChange={(e) => setRegisterName(e.target.value)}
+              required
+            />
+
             <label htmlFor="cadastro-email">Seu e-mail</label>
             <input
               type="email"
@@ -164,6 +188,24 @@ export default function Login() {
               id="cadastro-confirm-password"
               value={registerConfirmPassword}
               onChange={(e) => setRegisterConfirmPassword(e.target.value)}
+              required
+            />
+
+            <label htmlFor="cadastro-birthdate">Data de nascimento</label>
+            <input
+              type="date"
+              id="cadastro-birthdate"
+              value={registerBirthdate}
+              onChange={(e) => setRegisterBirthdate(e.target.value)}
+              required
+            />
+
+            <label htmlFor="cadastro-bio">Bio</label>
+            <textarea
+              id="cadastro-bio"
+              value={registerBio}
+              onChange={(e) => setRegisterBio(e.target.value)}
+              rows={2}
               required
             />
 
