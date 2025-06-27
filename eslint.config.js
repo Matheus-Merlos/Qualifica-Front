@@ -1,33 +1,39 @@
-import js from '@eslint/js'
-import globals from 'globals'
-import reactHooks from 'eslint-plugin-react-hooks'
-import reactRefresh from 'eslint-plugin-react-refresh'
+import css from '@eslint/css';
+import js from '@eslint/js';
+import configPrettier from 'eslint-config-prettier';
+import pluginPrettier from 'eslint-plugin-prettier';
+import pluginReact from 'eslint-plugin-react';
+import { defineConfig } from 'eslint/config';
+import globals from 'globals';
 
-export default [
-  { ignores: ['dist'] },
+export default defineConfig([
+  // Ignora pastas/padrões no nível global
   {
-    files: ['**/*.{js,jsx}'],
-    languageOptions: {
-      ecmaVersion: 2020,
-      globals: globals.browser,
-      parserOptions: {
-        ecmaVersion: 'latest',
-        ecmaFeatures: { jsx: true },
-        sourceType: 'module',
-      },
-    },
+    ignores: ['node_modules', 'dist', '**/*.min.*', '**/vendor/**'],
+  },
+  {
+    files: ['**/*.{js,mjs,cjs,jsx}'],
     plugins: {
-      'react-hooks': reactHooks,
-      'react-refresh': reactRefresh,
+      js,
+      prettier: pluginPrettier,
+      react: pluginReact,
     },
+    languageOptions: {
+      globals: globals.browser,
+    },
+    extends: ['js/recommended', pluginReact.configs.flat.recommended],
     rules: {
-      ...js.configs.recommended.rules,
-      ...reactHooks.configs.recommended.rules,
-      'no-unused-vars': ['error', { varsIgnorePattern: '^[A-Z_]' }],
-      'react-refresh/only-export-components': [
-        'warn',
-        { allowConstantExport: true },
-      ],
+      'prettier/prettier': 'error',
     },
   },
-]
+  {
+    name: 'prettier-config',
+    rules: configPrettier.rules,
+  },
+  {
+    files: ['**/*.css'],
+    plugins: { css },
+    language: 'css/css',
+    extends: ['css/recommended'],
+  },
+]);

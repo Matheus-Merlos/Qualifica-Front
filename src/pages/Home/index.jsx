@@ -1,5 +1,5 @@
-import React, { useState, useRef, useEffect } from "react";
-import "./styles.css";
+import React, { useEffect, useRef, useState } from 'react';
+import './styles.css';
 
 export default function Home() {
   const [isProfileCardVisible, setProfileCardVisible] = useState(false);
@@ -23,9 +23,9 @@ export default function Home() {
       }
     };
 
-    window.addEventListener("click", handleClickOutside);
+    window.addEventListener('click', handleClickOutside);
     return () => {
-      window.removeEventListener("click", handleClickOutside);
+      window.removeEventListener('click', handleClickOutside);
     };
   }, []);
 
@@ -66,7 +66,12 @@ export default function Home() {
         </div>
 
         <div className="right">
-          <div className="profile-card" id="profileCard" style={{ display: isProfileCardVisible ? 'block' : 'none' }} ref={profileCardRef}>
+          <div
+            className="profile-card"
+            id="profileCard"
+            style={{ display: isProfileCardVisible ? 'block' : 'none' }}
+            ref={profileCardRef}
+          >
             <div className="profile-header">
               <img src="/google.png" alt="Foto de Perfil" className="profile-picture-large" />
               <h3>Yuri Alberto</h3>
@@ -76,11 +81,17 @@ export default function Home() {
               <li>Meus Dados</li>
               <li>Meus Cursos</li>
               <li>Configurações</li>
-              <li style={{ color: "red" }}>Sair</li>
+              <li style={{ color: 'red' }}>Sair</li>
             </ul>
           </div>
 
-          <img src="/google.png" alt="Foto de Perfil" className="profile-picture" ref={profilePictureRef} onClick={toggleProfileCard} />
+          <img
+            src="/google.png"
+            alt="Foto de Perfil"
+            className="profile-picture"
+            ref={profilePictureRef}
+            onClick={toggleProfileCard}
+          />
         </div>
       </header>
 
@@ -93,10 +104,10 @@ export default function Home() {
               <div className="card-info">
                 <div className="card-info-text">
                   <span>Computação</span>
-                  <span style={{ fontSize: "0.7rem" }}>50%</span>
+                  <span style={{ fontSize: '0.7rem' }}>50%</span>
                 </div>
                 <div className="progress-bar">
-                  <div style={{ width: "50%" }}></div>
+                  <div style={{ width: '50%' }}></div>
                 </div>
               </div>
             </div>
@@ -105,10 +116,10 @@ export default function Home() {
               <div className="card-info">
                 <div className="card-info-text">
                   <span>Finanças</span>
-                  <span style={{ fontSize: "0.7rem" }}>50%</span>
+                  <span style={{ fontSize: '0.7rem' }}>50%</span>
                 </div>
                 <div className="progress-bar">
-                  <div style={{ width: "50%" }}></div>
+                  <div style={{ width: '50%' }}></div>
                 </div>
               </div>
             </div>
@@ -117,10 +128,10 @@ export default function Home() {
               <div className="card-info">
                 <div className="card-info-text">
                   <span>Excel</span>
-                  <span style={{ fontSize: "0.7rem" }}>50%</span>
+                  <span style={{ fontSize: '0.7rem' }}>50%</span>
                 </div>
                 <div className="progress-bar">
-                  <div style={{ width: "50%" }}></div>
+                  <div style={{ width: '50%' }}></div>
                 </div>
               </div>
             </div>
@@ -134,17 +145,22 @@ export default function Home() {
               <div className="card-info">
                 <div className="card-info-text">
                   <span>Word</span>
-                  <span style={{ fontSize: "0.7rem" }}>50%</span>
+                  <span style={{ fontSize: '0.7rem' }}>50%</span>
                 </div>
                 <div className="progress-bar">
-                  <div style={{ width: "50%" }}></div>
+                  <div style={{ width: '50%' }}></div>
                 </div>
               </div>
             </div>
           </div>
         </section>
       </main>
-      <div className="overlay" id="overlay" style={{ display: isProfileCardVisible ? 'block' : 'none' }} ref={overlayRef}></div>
+      <div
+        className="overlay"
+        id="overlay"
+        style={{ display: isProfileCardVisible ? 'block' : 'none' }}
+        ref={overlayRef}
+      ></div>
     </>
   );
 }
