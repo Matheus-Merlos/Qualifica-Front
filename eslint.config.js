@@ -24,6 +24,7 @@ export default defineConfig([
     extends: ['js/recommended', pluginReact.configs.flat.recommended],
     rules: {
       'prettier/prettier': 'error',
+      'react/self-closing-comp': 'error',
     },
   },
   {

@@ -4,5 +4,8 @@
   "printWidth": 100,
   "trailingComma": "es5",
   "tabWidth": 2,
-  "endOfLine": "auto"
+  "endOfLine": "auto",
+  "jsxSingleQuote": true,
+  "bracketSameLine": true,
+  "htmlWhitespaceSensitivity": "ignore"
 }
