@@ -79,108 +79,106 @@ function Login() {
   }
 
   return (
-    <div className="container">
-      <img src="/fundo.jpg" alt="Computação" className="background-image" />
+    <div className='container'>
+      <img src='/fundo.jpg' alt='Computação' className='background-image' />
 
-      <div className="form-box">
+      <div className='form-box'>
         {/* abas */}
-        <div className="tab-buttons">
+        <div className='tab-buttons'>
           <button
-            type="button"
+            type='button'
             className={`tab ${isLogin ? 'active' : ''}`}
-            onClick={() => handleChangeForm(true)}
-          >
+            onClick={() => handleChangeForm(true)}>
             Login
           </button>
           <button
-            type="button"
+            type='button'
             className={`tab ${!isLogin ? 'active' : ''}`}
-            onClick={() => handleChangeForm(false)}
-          >
+            onClick={() => handleChangeForm(false)}>
             Cadastro
           </button>
         </div>
 
         {/* formulário de login */}
         {isLogin ? (
-          <form id="login-form" className="form active" onSubmit={handleLoginSubmit}>
-            <label htmlFor="login-email">Seu e-mail</label>
+          <form id='login-form' className='form active' onSubmit={handleLoginSubmit}>
+            <label htmlFor='login-email'>Seu e-mail</label>
             <input
-              type="email"
-              id="login-email"
+              type='email'
+              id='login-email'
               value={loginEmail}
               onChange={(e) => setLoginEmail(e.target.value)}
               required
             />
 
-            <label htmlFor="login-password">Sua senha</label>
+            <label htmlFor='login-password'>Sua senha</label>
             <input
-              type="password"
-              id="login-password"
+              type='password'
+              id='login-password'
               value={loginPassword}
               onChange={(e) => setLoginPassword(e.target.value)}
               required
             />
 
-            <button type="submit">Entrar</button>
+            <button type='submit'>Entrar</button>
           </form>
         ) : (
           /* formulário de cadastro */
-          <form id="cadastro-form" className="form active" onSubmit={handleRegisterSubmit}>
-            <label htmlFor="cadastro-name">Nome</label>
+          <form id='cadastro-form' className='form active' onSubmit={handleRegisterSubmit}>
+            <label htmlFor='cadastro-name'>Nome</label>
             <input
-              type="text"
-              id="cadastro-name"
+              type='text'
+              id='cadastro-name'
               value={registerName}
               onChange={(e) => setRegisterName(e.target.value)}
               required
             />
 
-            <label htmlFor="cadastro-email">Seu e-mail</label>
+            <label htmlFor='cadastro-email'>Seu e-mail</label>
             <input
-              type="email"
-              id="cadastro-email"
+              type='email'
+              id='cadastro-email'
               value={registerEmail}
               onChange={(e) => setRegisterEmail(e.target.value)}
               required
             />
 
-            <label htmlFor="cadastro-password">Sua senha</label>
+            <label htmlFor='cadastro-password'>Sua senha</label>
             <input
-              type="password"
-              id="cadastro-password"
+              type='password'
+              id='cadastro-password'
               value={registerPassword}
               onChange={(e) => setRegisterPassword(e.target.value)}
               required
             />
 
-            <label htmlFor="cadastro-confirm-password">Confirmar senha</label>
+            <label htmlFor='cadastro-confirm-password'>Confirmar senha</label>
             <input
-              type="password"
-              id="cadastro-confirm-password"
+              type='password'
+              id='cadastro-confirm-password'
               value={registerConfirmPassword}
               onChange={(e) => setRegisterConfirmPassword(e.target.value)}
               required
             />
 
-            <label htmlFor="cadastro-bio">Biografia</label>
+            <label htmlFor='cadastro-bio'>Biografia</label>
             <textarea
-              id="cadastro-bio"
+              id='cadastro-bio'
               value={registerBio}
               onChange={(e) => setRegisterBio(e.target.value)}
               required
             />
 
-            <label htmlFor="cadastro-birthdate">Data de nascimento</label>
+            <label htmlFor='cadastro-birthdate'>Data de nascimento</label>
             <input
-              type="date"
-              id="cadastro-birthdate"
+              type='date'
+              id='cadastro-birthdate'
               value={registerBirthdate}
               onChange={(e) => setRegisterBirthdate(e.target.value)}
               required
             />
 
-            <button type="submit">Cadastrar</button>
+            <button type='submit'>Cadastrar</button>
           </form>
         )}
       </div>
