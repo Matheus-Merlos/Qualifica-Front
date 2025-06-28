@@ -160,10 +160,10 @@ export default function Home() {
 
   return (
     <>
-      <div className="course-search">
+      <div className='course-search'>
         {error && (
           <div
-            className="error-message"
+            className='error-message'
             style={{
               background: '#f8d7da',
               color: '#dc3545',
@@ -171,24 +171,23 @@ export default function Home() {
               borderRadius: '8px',
               marginBottom: '1rem',
               textAlign: 'center',
-            }}
-          >
+            }}>
             {error}
           </div>
         )}
-        <header className="top-bar">
-          <div className="left">
-            <h1 className="logo-text">
+        <header className='top-bar'>
+          <div className='left'>
+            <h1 className='logo-text'>
               Qualifica<span>+</span>
             </h1>
-            <div className="search-wrap" ref={searchRef}>
-              <div className="search-box">
+            <div className='search-wrap' ref={searchRef}>
+              <div className='search-box'>
                 <input
-                  type="text"
+                  type='text'
                   placeholder={
                     isSearching ? 'Digite para pesquisar cursos...' : 'Clique aqui para pesquisar'
                   }
-                  className="search-bar-top"
+                  className='search-bar-top'
                   value={searchQuery}
                   onChange={handleSearch}
                   onFocus={() => setIsSearching(true)}
@@ -196,28 +195,27 @@ export default function Home() {
               </div>
             </div>
           </div>
-          <div className="right">
+          <div className='right'>
             <div
-              className="profile-card"
+              className='profile-card'
               ref={cardRef}
-              style={{ display: visible ? 'block' : 'none' }}
-            >
-              <div className="profile-header">
-                <img src="/google.png" alt="Perfil" className="profile-picture-large" />
+              style={{ display: visible ? 'block' : 'none' }}>
+              <div className='profile-header'>
+                <img src='/google.png' alt='Perfil' className='profile-picture-large' />
                 <h3>{name}</h3>
               </div>
               <hr />
-              <ul className="profile-options">
+              <ul className='profile-options'>
                 <li>Meus Dados</li>
                 <li>Meus Cursos</li>
                 <li>Configurações</li>
-                <li className="logout">Sair</li>
+                <li className='logout'>Sair</li>
               </ul>
             </div>
             <img
-              src="/google.png"
-              alt="Perfil"
-              className="profile-picture"
+              src='/google.png'
+              alt='Perfil'
+              className='profile-picture'
               ref={pictureRef}
               onClick={toggleCard}
             />
@@ -225,38 +223,37 @@ export default function Home() {
         </header>
         <main className={`home-container ${isSearching ? 'search-active' : ''}`}>
           {isSearching && (
-            <div className="search-overlay" ref={searchOverlayRef}>
-              <div className="search-results">
+            <div className='search-overlay' ref={searchOverlayRef}>
+              <div className='search-results'>
                 {courses.map((course) => (
                   <div
                     key={course.id}
-                    className="result-item"
-                    onClick={() => openCourse(course.id)}
-                  >
+                    className='result-item'
+                    onClick={() => openCourse(course.id)}>
                     <img src={course.image || '/placeholder-course.png'} alt={course.name} />
-                    <div className="result-info">
-                      <span className="title">{course.name}</span>
-                      <span className="level">
+                    <div className='result-info'>
+                      <span className='title'>{course.name}</span>
+                      <span className='level'>
                         {course.progress ? `${course.progress}% concluído` : 'Novo'}
                       </span>
                     </div>
                   </div>
                 ))}
-                {courses.length === 0 && <div className="no-results">Nenhum curso encontrado</div>}
+                {courses.length === 0 && <div className='no-results'>Nenhum curso encontrado</div>}
               </div>
             </div>
           )}
           <section>
             <h2>Continue de onde parou</h2>
-            <div className="card-row">
+            <div className='card-row'>
               {continueCourses.map((course) => (
-                <div key={course.id} className="course-card" onClick={() => openCourse(course.id)}>
+                <div key={course.id} className='course-card' onClick={() => openCourse(course.id)}>
                   <img src={course.image || '/placeholder-course.png'} alt={course.name} />
-                  <div className="overlay">
+                  <div className='overlay'>
                     <span>{course.name}</span>
                     <span>{course.progress || 0}%</span>
                   </div>
-                  <div className="progress">
+                  <div className='progress'>
                     <div style={{ width: `${course.progress || 0}%` }} />
                   </div>
                 </div>
@@ -265,15 +262,15 @@ export default function Home() {
           </section>
           <section>
             <h2>Novidades para você</h2>
-            <div className="card-row">
+            <div className='card-row'>
               {newCourses.map((course) => (
-                <div key={course.id} className="course-card" onClick={() => openCourse(course.id)}>
+                <div key={course.id} className='course-card' onClick={() => openCourse(course.id)}>
                   <img src={course.image || '/placeholder-course.png'} alt={course.name} />
-                  <div className="overlay">
+                  <div className='overlay'>
                     <span>{course.name}</span>
                     <span>Novo</span>
                   </div>
-                  <div className="progress">
+                  <div className='progress'>
                     <div style={{ width: '0%' }} />
                   </div>
                 </div>
@@ -282,7 +279,7 @@ export default function Home() {
           </section>
         </main>
       </div>
-      {visible && <div className="overlay-backdrop" />}
+      {visible && <div className='overlay-backdrop' />}
     </>
   );
 }
