@@ -1,11 +1,16 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { FiArrowLeft, FiBookOpen, FiDownload } from 'react-icons/fi';
-import api from '../../api';
+import api from '../../utils/api';
 import './styles.css';
 
 // Componente de imagem com fallback
-const ImageWithFallback = ({ src, alt, fallbackSrc = 'https://via.placeholder.com/800x450?text=Sem+Imagem', ...props }) => {
+const ImageWithFallback = ({
+  src,
+  alt,
+  fallbackSrc = 'https://via.placeholder.com/800x450?text=Sem+Imagem',
+  ...props
+}) => {
   const [imgSrc, setImgSrc] = useState(src || fallbackSrc);
   const [hasError, setHasError] = useState(false);
 
@@ -21,14 +26,7 @@ const ImageWithFallback = ({ src, alt, fallbackSrc = 'https://via.placeholder.co
     }
   };
 
-  return (
-    <img
-      src={imgSrc}
-      alt={alt}
-      onError={handleError}
-      {...props}
-    />
-  );
+  return <img src={imgSrc} alt={alt} onError={handleError} {...props} />;
 };
 
 export default function Curso() {
@@ -41,9 +39,9 @@ export default function Curso() {
     sections: [],
     totalLessons: 0,
     totalDuration: '4h 20min',
-    lastAccessed: '03/06/2025'
+    lastAccessed: '03/06/2025',
   });
-  
+
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const { id } = useParams();
@@ -55,24 +53,30 @@ export default function Curso() {
         setError(null);
         const response = await api.get(`/course/${id}`);
         console.log('Dados do curso recebidos:', response.data);
-        
+
         const courseData = response.data;
-        
-        setCourse(prev => ({
+
+        setCourse((prev) => ({
           ...prev,
           ...courseData,
           name: courseData.name || 'Curso sem nome',
           description: courseData.description || 'Nenhuma descrição disponível para este curso.',
           progress: courseData.progress || 0,
-          imageUrl: courseData.imageUrl || 'https://images.pexels.com/photos/1181671/pexels-photo-1181671.jpeg',
-          sections: courseData.sections?.length ? courseData.sections : [
-            { id: 1, title: 'Módulo 1 – Introdução', lessonCount: 5 },
-            { id: 2, title: 'Módulo 2 – Sistema Operacional', lessonCount: 8 },
-            { id: 3, title: 'Módulo 3 – Segurança', lessonCount: 6 },
-          ],
-          totalLessons: courseData.sections?.reduce((acc, section) => acc + (section.lessonCount || 0), 0) || 19,
+          imageUrl:
+            courseData.imageUrl ||
+            'https://images.pexels.com/photos/1181671/pexels-photo-1181671.jpeg',
+          sections: courseData.sections?.length
+            ? courseData.sections
+            : [
+                { id: 1, title: 'Módulo 1 – Introdução', lessonCount: 5 },
+                { id: 2, title: 'Módulo 2 – Sistema Operacional', lessonCount: 8 },
+                { id: 3, title: 'Módulo 3 – Segurança', lessonCount: 6 },
+              ],
+          totalLessons:
+            courseData.sections?.reduce((acc, section) => acc + (section.lessonCount || 0), 0) ||
+            19,
           totalDuration: '4h 20min',
-          lastAccessed: '03/06/2025'
+          lastAccessed: '03/06/2025',
         }));
       } catch (error) {
         console.error('Erro ao buscar curso:', error);
@@ -94,39 +98,44 @@ export default function Curso() {
   const materials = [
     { id: 1, name: 'Guia rápido PDF', type: 'pdf' },
     { id: 2, name: 'Links recomendados', type: 'link' },
-    { id: 3, name: 'Planilha de exercícios', type: 'sheet' }
+    { id: 3, name: 'Planilha de exercícios', type: 'sheet' },
   ];
 
   if (loading) {
     return (
-      <div className="loading" style={{
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-        height: '100vh',
-        fontSize: '1.2rem',
-        color: '#666'
-      }}>
+      <div
+        className="loading"
+        style={{
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          height: '100vh',
+          fontSize: '1.2rem',
+          color: '#666',
+        }}
+      >
         Carregando informações do curso...
       </div>
     );
   }
 
-
   if (error) {
     return (
-      <div className="error" style={{
-        padding: '2rem',
-        textAlign: 'center',
-        color: '#d32f2f',
-        backgroundColor: '#ffebee',
-        borderRadius: '8px',
-        margin: '2rem auto',
-        maxWidth: '600px'
-      }}>
+      <div
+        className="error"
+        style={{
+          padding: '2rem',
+          textAlign: 'center',
+          color: '#d32f2f',
+          backgroundColor: '#ffebee',
+          borderRadius: '8px',
+          margin: '2rem auto',
+          maxWidth: '600px',
+        }}
+      >
         <h2>Erro ao carregar o curso</h2>
         <p>{error}</p>
-        <button 
+        <button
           onClick={() => window.history.back()}
           style={{
             marginTop: '1rem',
@@ -135,7 +144,7 @@ export default function Curso() {
             color: 'white',
             border: 'none',
             borderRadius: '4px',
-            cursor: 'pointer'
+            cursor: 'pointer',
           }}
         >
           Voltar para a página anterior
@@ -148,18 +157,11 @@ export default function Curso() {
     <div className="course-detail">
       {/* Hero Section */}
       <div className="hero">
-        <ImageWithFallback 
-          src={course.imageUrl} 
-          alt={course.name}
-          className="hero-image"
-        />
+        <ImageWithFallback src={course.imageUrl} alt={course.name} className="hero-image" />
         <div className="hero-content">
           <h1 className="hero-title">{course.name}</h1>
           <div className="progress-bar">
-            <div 
-              className="progress-bar-fill" 
-              style={{ width: `${course.progress}%` }}
-            />
+            <div className="progress-bar-fill" style={{ width: `${course.progress}%` }} />
           </div>
           <div className="hero-meta">
             <span>{course.progress}% concluído</span>
@@ -184,9 +186,7 @@ export default function Curso() {
             <h2 className="section-title">Conteúdo do curso</h2>
             {course.sections.map((section) => (
               <div key={section.id} className="module">
-                <div className="module-title">
-                  {section.title}
-                </div>
+                <div className="module-title">{section.title}</div>
                 <div className="module-meta">
                   {section.lessonCount} {section.lessonCount === 1 ? 'aula' : 'aulas'}
                 </div>
@@ -214,15 +214,9 @@ export default function Curso() {
         <aside className="cta-sidebar">
           <div className="cta-card">
             <h3 className="section-title">Continuar onde parou</h3>
-            <button className="btn btn-primary">
-              Continuar curso
-            </button>
-            <button className="btn btn-outline">
-              Reiniciar
-            </button>
-            <p className="last-accessed">
-              Último acesso em {course.lastAccessed}
-            </p>
+            <button className="btn btn-primary">Continuar curso</button>
+            <button className="btn btn-outline">Reiniciar</button>
+            <p className="last-accessed">Último acesso em {course.lastAccessed}</p>
           </div>
         </aside>
       </div>

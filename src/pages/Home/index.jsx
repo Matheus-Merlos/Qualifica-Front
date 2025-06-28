@@ -1,7 +1,9 @@
 import React, { useEffect, useRef, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import api from '../../api';
+import api from '../../utils/api';
 import './styles.css';
+import { useAtom } from 'jotai';
+import { nameAtom } from '../../store/persistentAtoms';
 
 export default function Home() {
   /* ­---------------- profile pop-up ---------------- */
@@ -16,6 +18,8 @@ export default function Home() {
   const pictureRef = useRef(null);
   const searchRef = useRef(null);
   const searchOverlayRef = useRef(null);
+
+  const [name] = useAtom(nameAtom);
 
   const toggleCard = () => setVisible((v) => !v);
 
@@ -38,20 +42,23 @@ export default function Home() {
     try {
       const response = await api.get('/course', {
         headers: {
-          'Content-Type': 'application/json'
-        }
+          'Content-Type': 'application/json',
+        },
       });
       const allCourses = response.data;
-      
+
       // Separar cursos em continue e novos
-      const [continueCourses, newCourses] = allCourses.reduce((acc, course) => {
-        if (course.progress > 0) {
-          acc[0].push(course);
-        } else {
-          acc[1].push(course);
-        }
-        return acc;
-      }, [[], []]);
+      const [continueCourses, newCourses] = allCourses.reduce(
+        (acc, course) => {
+          if (course.progress > 0) {
+            acc[0].push(course);
+          } else {
+            acc[1].push(course);
+          }
+          return acc;
+        },
+        [[], []]
+      );
 
       setCourses(allCourses);
       setContinueCourses(continueCourses);
@@ -69,14 +76,14 @@ export default function Home() {
   const handleSearch = async (e) => {
     const query = e.target.value.trim();
     setSearchQuery(query);
-    
+
     try {
       if (query) {
         const response = await api.get(`/course`, {
           params: {
             q: query,
-            limit: 25
-          }
+            limit: 25,
+          },
         });
         setCourses(response.data);
       } else {
@@ -91,35 +98,41 @@ export default function Home() {
   };
 
   /* ­---------------- UI ---------------- */
-  const handleClickOutside = useCallback((event) => {
-    // Se o overlay de busca está aberto
-    if (isSearching) {
-      // Se clicou fora do overlay E fora do campo de busca
-      if (
-        searchOverlayRef.current && 
-        !searchOverlayRef.current.contains(event.target) &&
-        searchRef.current && 
-        !searchRef.current.contains(event.target)
-      ) {
+  const handleClickOutside = useCallback(
+    (event) => {
+      // Se o overlay de busca está aberto
+      if (isSearching) {
+        // Se clicou fora do overlay E fora do campo de busca
+        if (
+          searchOverlayRef.current &&
+          !searchOverlayRef.current.contains(event.target) &&
+          searchRef.current &&
+          !searchRef.current.contains(event.target)
+        ) {
+          setIsSearching(false);
+          setSearchQuery('');
+        }
+      }
+    },
+    [isSearching]
+  );
+
+  // Adiciona evento de tecla ESC
+  const handleKeyDown = useCallback(
+    (event) => {
+      if (event.key === 'Escape' && isSearching) {
         setIsSearching(false);
         setSearchQuery('');
       }
-    }
-  }, [isSearching]);
-
-  // Adiciona evento de tecla ESC
-  const handleKeyDown = useCallback((event) => {
-    if (event.key === 'Escape' && isSearching) {
-      setIsSearching(false);
-      setSearchQuery('');
-    }
-  }, [isSearching]);
+    },
+    [isSearching]
+  );
 
   useEffect(() => {
     // Adiciona listeners quando o componente monta
     document.addEventListener('mousedown', handleClickOutside);
     document.addEventListener('keydown', handleKeyDown);
-    
+
     // Remove listeners quando o componente desmonta
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
@@ -145,20 +158,21 @@ export default function Home() {
     setSearchQuery('');
   };
 
-
-
   return (
     <>
       <div className="course-search">
         {error && (
-          <div className="error-message" style={{
-            background: '#f8d7da',
-            color: '#dc3545',
-            padding: '1rem',
-            borderRadius: '8px',
-            marginBottom: '1rem',
-            textAlign: 'center'
-          }}>
+          <div
+            className="error-message"
+            style={{
+              background: '#f8d7da',
+              color: '#dc3545',
+              padding: '1rem',
+              borderRadius: '8px',
+              marginBottom: '1rem',
+              textAlign: 'center',
+            }}
+          >
             {error}
           </div>
         )}
@@ -169,9 +183,11 @@ export default function Home() {
             </h1>
             <div className="search-wrap" ref={searchRef}>
               <div className="search-box">
-                <input 
-                  type="text" 
-                  placeholder={isSearching ? "Digite para pesquisar cursos..." : "Clique aqui para pesquisar"}
+                <input
+                  type="text"
+                  placeholder={
+                    isSearching ? 'Digite para pesquisar cursos...' : 'Clique aqui para pesquisar'
+                  }
                   className="search-bar-top"
                   value={searchQuery}
                   onChange={handleSearch}
@@ -188,7 +204,7 @@ export default function Home() {
             >
               <div className="profile-header">
                 <img src="/google.png" alt="Perfil" className="profile-picture-large" />
-                <h3>Yuri Alberto</h3>
+                <h3>{name}</h3>
               </div>
               <hr />
               <ul className="profile-options">
@@ -212,7 +228,11 @@ export default function Home() {
             <div className="search-overlay" ref={searchOverlayRef}>
               <div className="search-results">
                 {courses.map((course) => (
-                  <div key={course.id} className="result-item" onClick={() => openCourse(course.id)}>
+                  <div
+                    key={course.id}
+                    className="result-item"
+                    onClick={() => openCourse(course.id)}
+                  >
                     <img src={course.image || '/placeholder-course.png'} alt={course.name} />
                     <div className="result-info">
                       <span className="title">{course.name}</span>
@@ -222,9 +242,7 @@ export default function Home() {
                     </div>
                   </div>
                 ))}
-                {courses.length === 0 && (
-                  <div className="no-results">Nenhum curso encontrado</div>
-                )}
+                {courses.length === 0 && <div className="no-results">Nenhum curso encontrado</div>}
               </div>
             </div>
           )}
