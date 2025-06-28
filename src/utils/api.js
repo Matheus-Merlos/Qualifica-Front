@@ -1,7 +1,5 @@
 import axios from 'axios';
 
-const baseURL = 'https://api.test.qualificamais.app.br/';
-
 const api = axios.create({
   baseURL: 'https://api.test.qualificamais.app.br/',
   headers: { 'Content-Type': 'application/json' },
@@ -13,11 +11,11 @@ api.interceptors.request.use(
     console.debug('[API Request]', config.baseURL + config.url);
 
     try {
-      const stored = localStorage.getItem('loginData');
+      const stored = localStorage.getItem('token');
       if (stored) {
-        const { token } = JSON.parse(stored);
+        const token = JSON.parse(stored);
         if (token) {
-          config.headers.Authorization = `Bearer ${token}`;
+          config.headers.authorization = `Bearer ${token}`;
         }
       }
     } catch (err) {

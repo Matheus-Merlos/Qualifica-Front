@@ -1,21 +1,9 @@
 import { useAtom } from 'jotai';
-import { atomWithStorage } from 'jotai/utils';
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import api from '../../api';
+import api from '../../utils/api';
+import { bioAtom, emailAtom, nameAtom, tokenAtom, userIdAtom } from '../../store/persistentAtoms';
 import './styles.css';
-
-export const loginDataAtom = atomWithStorage('loginData', {
-  email: '',
-  token: '',
-});
-
-export const registerDataAtom = atomWithStorage('registerData', {
-  name: '',
-  email: '',
-  birthdate: '',
-  bio: '',
-});
 
 function Login() {
   const navigate = useNavigate();
@@ -32,8 +20,11 @@ function Login() {
   const [registerBirthdate, setRegisterBirthdate] = useState('');
   const [registerBio, setRegisterBio] = useState('');
 
-  const [loginData, setLoginData] = useAtom(loginDataAtom);
-  const [, setRegisterData] = useAtom(registerDataAtom);
+  const [, setUserId] = useAtom(userIdAtom);
+  const [token, setToken] = useAtom(tokenAtom);
+  const [, setEmail] = useAtom(emailAtom);
+  const [, setName] = useAtom(nameAtom);
+  const [, setBio] = useAtom(bioAtom);
 
   const handleChangeForm = (showLogin) => setIsLogin(showLogin);
 
@@ -44,8 +35,14 @@ function Login() {
         email: loginEmail,
         password: loginPassword,
       });
-      const { email, token } = data;
-      setLoginData({ email, token });
+      const { id, name, email, token, bio } = data;
+
+      setUserId(id);
+      setName(name);
+      setEmail(email);
+      setToken(token);
+      setBio(bio);
+
       navigate('/pages/Home/');
     } catch (error) {
       console.error('Login failed:', error);
@@ -61,15 +58,13 @@ function Login() {
       return;
     }
     try {
-      const { data } = await api.post('/user/register', {
+      await api.post('/user/register', {
         name: registerName,
         email: registerEmail,
         password: registerPassword,
         birthdate: registerBirthdate,
         bio: registerBio,
       });
-      const { name, email, birthdate, bio } = data;
-      setRegisterData({ name, email, birthdate, bio });
       alert('Cadastro realizado com sucesso! Faça login.');
       setIsLogin(true);
     } catch (error) {
@@ -78,7 +73,7 @@ function Login() {
     }
   };
 
-  if (loginData.token) {
+  if (token) {
     navigate('/home');
     return null;
   }

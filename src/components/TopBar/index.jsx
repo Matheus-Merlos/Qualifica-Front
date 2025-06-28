@@ -1,10 +1,14 @@
+import { useAtom } from 'jotai';
 import React, { useEffect, useRef, useState } from 'react';
+import { nameAtom } from '../../store/persistentAtoms';
 
 export default function TopBar() {
   const [isProfileCardVisible, setProfileCardVisible] = useState(false);
   const profileCardRef = useRef(null);
   const profilePictureRef = useRef(null);
   const overlayRef = useRef(null);
+
+  const [name] = useAtom(nameAtom);
 
   function toggleProfileCard() {
     setProfileCardVisible(!isProfileCardVisible);
@@ -77,7 +81,7 @@ export default function TopBar() {
           >
             <div className="profile-header">
               <img src="/google.png" alt="Foto de Perfil" className="profile-picture-large" />
-              <h3>Yuri Alberto</h3>
+              <h3>{name}</h3>
             </div>
             <hr />
             <ul className="profile-options">
