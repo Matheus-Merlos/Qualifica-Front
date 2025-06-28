@@ -4,22 +4,25 @@ import Curso from './pages/Curso';
 import Home from './pages/Home';
 import Login from './pages/Login';
 import Route404 from './pages/404';
+import { Provider } from 'jotai';
 
 function App() {
   return (
-    <BrowserRouter>
-      <Routes>
-        {/* rota raiz → tela de login */}
-        <Route path='/' element={<Login />} />
+    <Provider>
+      <BrowserRouter>
+        <Routes>
+          {/* rota raiz → tela de login */}
+          <Route path='/' element={<Login />} />
 
-        {/* nova rota → tela Home */}
-        <Route path='/home' element={<Home />} />
-        <Route path='/curso' element={<Curso />} />
-        <Route path='/course/:id' element={<Curso />} />
+          {/* nova rota → tela Home */}
+          <Route path='/home' element={<Home />} />
+          <Route path='/curso' element={<Curso />} />
+          <Route path='/course/:id' element={<Curso />} />
 
-        <Route path='*' element={<Route404 />} />
-      </Routes>
-    </BrowserRouter>
+          <Route path='*' element={<Route404 />} />
+        </Routes>
+      </BrowserRouter>
+    </Provider>
   );
 }
 
