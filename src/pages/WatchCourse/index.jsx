@@ -17,17 +17,29 @@ import { userIdAtom } from '../../store/persistentAtoms';
 import ResourceViewer from './ResourceViewer';
 
 export default function WatchCourse() {
-  const { courseId, resourceType, resourceId } = useParams();
+  const { courseId, resourceType, resourceId, sectionResourceId } = useParams();
   const navigate = useNavigate();
   const [userId] = useAtom(userIdAtom);
-
   const [courseProgress, setCourseProgress] = useState(null);
   const [currentResource, setCurrentResource] = useState(null);
   const [openSections, setOpenSections] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [commentContent, setCommentContent] = useState('');
 
+  async function handleCommentCreation() {
+    if (commentContent.trim() === '') {
+      return;
+    }
+    try {
+      await api.post(`/comment/${sectionResourceId}`, { userId, content: commentContent });
+      setCommentContent('');
+    } catch (error) {
+      alert(`Erro ao criar comentário: ${error.response.data}`);
+    }
+  }
   // Efeito para buscar o progresso geral do curso
   useEffect(() => {
+    console.log(userId);
     const fetchCourseProgress = async () => {
       try {
         const response = await api.get(`/course/${courseId}/progress/${userId}`);
@@ -39,6 +51,7 @@ export default function WatchCourse() {
         console.error('Erro ao buscar progresso do curso:', error);
       }
     };
+
     fetchCourseProgress();
   }, [courseId, userId]);
 
@@ -60,18 +73,30 @@ export default function WatchCourse() {
         setLoading(false);
       }
     };
+
     fetchResource();
   }, [resourceType, resourceId]);
 
-  const handleToggleSection = (sectionId) => {
+  function handleToggleSection(sectionId) {
     setOpenSections((prev) =>
       prev.includes(sectionId) ? prev.filter((id) => id !== sectionId) : [...prev, sectionId]
     );
-  };
+  }
 
-  const handleSelectResource = (type, id) => {
-    navigate(`/course/${courseId}/watch/${type}/${id}`);
-  };
+  function handleSelectResource(resource) {
+    const columnNames = {
+      exam: 'sectionExamId',
+      lesson: 'sectionLessonId',
+      material: 'sectionMaterialId',
+    };
+
+    console.log(resource.content);
+    const type = resource.type;
+    const sectionId = resource.content[columnNames[resource.type]];
+    const id = resource.content.id;
+
+    navigate(`/course/${courseId}/watch/${type}/${id}/${sectionId}`);
+  }
 
   const getResourceIcon = (type) => {
     switch (type) {
@@ -97,12 +122,16 @@ export default function WatchCourse() {
           <Link to={`/course/${courseId}`} className='back-link'>
             <FiArrowLeft /> Voltar
           </Link>
+
           <h3>{courseProgress.name}</h3>
+
           <div className='progress-bar'>
             {/* Lógica de progresso precisa ser implementada */}
+
             <div className='progress-bar-fill' style={{ width: '20%' }} />
           </div>
         </header>
+
         <div className='course-content-list'>
           {courseProgress.sections.map((section) => (
             <div key={section.id} className='sidebar-section'>
@@ -110,15 +139,17 @@ export default function WatchCourse() {
                 className='sidebar-section-header'
                 onClick={() => handleToggleSection(section.id)}>
                 <span>{section.name}</span>
+
                 {openSections.includes(section.id) ? <FiChevronUp /> : <FiChevronDown />}
               </div>
+
               {openSections.includes(section.id) && (
                 <ul className='resource-list'>
                   {section.resources.map((resource) => (
                     <li
                       key={`${resource.type}-${resource.content.id}`}
                       className={`resource-item ${resource.content.id.toString() === resourceId ? 'active' : ''}`}
-                      onClick={() => handleSelectResource(resource.type, resource.content.id)}>
+                      onClick={() => handleSelectResource(resource)}>
                       {resource.type === 'lesson' || resource.type === 'exam' ? (
                         resource.completed ? (
                           <FiCheckSquare className='completed-icon' />
@@ -128,7 +159,9 @@ export default function WatchCourse() {
                       ) : (
                         <div className='icon-placeholder' />
                       )}
+
                       <span className='resource-icon'>{getResourceIcon(resource.type)}</span>
+
                       <span>{resource.content.name}</span>
                     </li>
                   ))}
@@ -147,18 +180,28 @@ export default function WatchCourse() {
         )}
 
         {/* Seção de Comentários */}
-        <div className='comments-section'>
-          <h3>Comentários</h3>
-          <div className='comment-box'>
-            <textarea placeholder='Deixe seu comentário...' />
-            <button>Enviar</button>
+
+        {resourceType === 'lesson' && (
+          <div className='comments-section'>
+            <h3>Comentários</h3>
+
+            <div className='comment-box'>
+              <textarea
+                placeholder='Deixe seu comentário...'
+                onChange={(e) => setCommentContent(e.target.value)}
+                value={commentContent}
+              />
+
+              <button onClick={handleCommentCreation}>Enviar</button>
+            </div>
+
+            <div className='comment'>
+              <p>
+                <strong>Usuário 1:</strong> Ótima aula, muito bem explicado!
+              </p>
+            </div>
           </div>
-          <div className='comment'>
-            <p>
-              <strong>Usuário 1:</strong> Ótima aula, muito bem explicado!
-            </p>
-          </div>
-        </div>
+        )}
       </main>
     </div>
   );

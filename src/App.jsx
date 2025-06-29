@@ -27,7 +27,7 @@ function App() {
             Isso permite que um usuário compartilhe um link direto para uma aula específica.
           */}
           <Route
-            path='/course/:courseId/watch/:resourceType/:resourceId'
+            path='/course/:courseId/watch/:resourceType/:resourceId/:sectionResourceId'
             element={<WatchCourse />}
           />
           {/* Rota para quando o usuário apenas entra na página de assistir, sem selecionar um recurso */}

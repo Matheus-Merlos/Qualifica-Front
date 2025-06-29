@@ -277,14 +277,16 @@ export default function Curso() {
             <button className='btn btn-primary' onClick={() => navigate(`/course/${id}/watch`)}>
               Continuar curso
             </button>
-            <button className='btn btn-outline'>Reiniciar</button>
+            <button className='btn btn-outline' onClick={() => alert('CRIA UMA CONTA NOVA')}>
+              Reiniciar
+            </button>
           </div>
         </aside>
       </div>
 
       {/* Mobile Navigation */}
       <div className='mobile-nav'>
-        <Link to='/home' className='mobile-nav-item'>
+        <Link to='/' className='mobile-nav-item'>
           <FiArrowLeft size={22} />
           <span>Voltar</span>
         </Link>
