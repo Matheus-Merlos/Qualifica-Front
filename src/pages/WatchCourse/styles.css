@@ -189,6 +189,10 @@
   border-top: 1px solid var(--neutral-200);
 }
 
+.comment {
+  margin-bottom: 2%;
+}
+
 .comment-box textarea {
   width: 100%;
   min-height: 80px;

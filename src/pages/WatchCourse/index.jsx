@@ -24,7 +24,9 @@ export default function WatchCourse() {
   const [currentResource, setCurrentResource] = useState(null);
   const [openSections, setOpenSections] = useState([]);
   const [loading, setLoading] = useState(true);
+
   const [commentContent, setCommentContent] = useState('');
+  const [comments, setComments] = useState([]);
 
   async function handleCommentCreation() {
     if (commentContent.trim() === '') {
@@ -33,14 +35,32 @@ export default function WatchCourse() {
     try {
       await api.post(`/comment/${sectionResourceId}`, { userId, content: commentContent });
       setCommentContent('');
+      fetchComments();
     } catch (error) {
       alert(`Erro ao criar comentário: ${error.response.data}`);
     }
   }
+
+  async function fetchComments() {
+    try {
+      const response = await api.get(`/comment/${sectionResourceId}/comment`);
+      setComments(response.data);
+      console.log(response.data);
+    } catch (error) {
+      console.error('Erro ao buscar progresso do curso:', error);
+    }
+  }
+
+  useEffect(() => {
+    fetchComments();
+  }, [sectionResourceId]);
+
   // Efeito para buscar o progresso geral do curso
   useEffect(() => {
-    console.log(userId);
     const fetchCourseProgress = async () => {
+      if (!userId) {
+        return;
+      }
       try {
         const response = await api.get(`/course/${courseId}/progress/${userId}`);
         console.log(response.data);
@@ -195,11 +215,13 @@ export default function WatchCourse() {
               <button onClick={handleCommentCreation}>Enviar</button>
             </div>
 
-            <div className='comment'>
-              <p>
-                <strong>Usuário 1:</strong> Ótima aula, muito bem explicado!
-              </p>
-            </div>
+            {comments.map((comment) => (
+              <div className='comment' key={comment.id}>
+                <p>
+                  <strong>{comment.user}</strong> {comment.content}
+                </p>
+              </div>
+            ))}
           </div>
         )}
       </main>
