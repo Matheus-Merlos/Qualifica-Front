@@ -1,3 +1,4 @@
+/* eslint-disable react/no-unescaped-entities */
 import React, { useEffect, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import SearchBar from '../../components/SearchBar';
@@ -28,21 +29,37 @@ export default function Search() {
   }, [q]);
 
   useEffect(() => {
-    setSearchParams(q);
+    setSearchParams(q.replaceAll('+', ' '));
   }, []);
 
   return (
     <div className='search-container'>
       <SearchBar />
 
-      <div className='courses'>
+      <h1 className='search-title'>Resultados da pesquisa por "{searchParams}"</h1>
+
+      <div className='search-course-result-list'>
         {courses.length > 0 &&
           courses.map((course) => (
-            <Link key={course.id} to={`/course/${course.id}`}>
+            <Link key={course.id} to={`/course/${course.id}`} className='search-course-result-link'>
               <div className='course-card'>
                 <img src={course.imageUrl} alt={course.name} className='course-image' />
                 <div className='course-info'>
                   <h3 className='course-title'>{course.name}</h3>
+                  <p>
+                    {course.description
+                      ? course.description.length > 400
+                        ? course.description.slice(0, 400) + '...'
+                        : course.description
+                      : 'Curso sem descrição'}
+                  </p>
+                  <div className='search-result-course-card-tags'>
+                    {course.tags.map((tag, index) => (
+                      <span key={index} className='search-result-course-card-tag'>
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
                 </div>
               </div>
             </Link>

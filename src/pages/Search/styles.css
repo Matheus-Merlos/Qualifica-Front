@@ -2,15 +2,45 @@
   width: 100vw;
 }
 
-.courses {
+.search-title {
+  margin-top: 1.5%;
+  margin-left: 1.5%;
+}
+
+.search-course-result-list {
   display: flex;
+  flex-direction: column;
   align-items: center;
+  margin-top: 1.5%;
 }
 
 .course-card {
-  width: 90vw;
+  width: 95vw;
   padding: 1.25%;
   background-color: white;
   display: grid;
   grid-template-columns: 2fr 10fr;
+  margin-bottom: 1.5%;
+}
+
+.search-result-course-card-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 1.5rem;
+}
+
+.search-result-course-card-tag {
+  display: inline-block;
+  background-color: #e0e7ff;
+  color: #4f46e5;
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.7rem;
+  font-weight: 500;
+  transition: all 0.2s;
+}
+
+.search-course-result-link:hover {
+  text-decoration: none;
 }
