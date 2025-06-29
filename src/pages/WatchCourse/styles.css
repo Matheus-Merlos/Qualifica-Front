@@ -225,3 +225,13 @@
     padding: 1.5rem;
   }
 }
+
+.video-player-wrapper-final {
+  width: 100%;
+  max-width: 900px; /* Você pode ajustar */
+  margin: 0 auto 1rem; /* Centraliza e adiciona margem inferior */
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  border-radius: 8px;
+  overflow: hidden; /* Garante que o vídeo respeite a borda arredondada */
+  background-color: black;
+}

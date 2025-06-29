@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import {
   FiCheckSquare,
@@ -12,76 +12,77 @@ import {
 } from 'react-icons/fi';
 import api from '../../utils/api';
 import './styles.css';
+import { useAtom } from 'jotai';
+import { userIdAtom } from '../../store/persistentAtoms';
 
 // Componente para renderizar o conteúdo principal (vídeo, prova ou material)
-const ResourceViewer = ({ resource }) => {
-  if (!resource) {
+const ResourceViewer = ({ resource, onProgress = console.log, startTime = 0 }) => {
+  const videoRef = useRef(null);
+
+  useEffect(() => {
+    const videoElement = videoRef.current;
+    if (!videoElement) return;
+
+    const handleMetadataLoaded = () => {
+      if (startTime > 0 && startTime < videoElement.duration) {
+        console.log(`Pulando o vídeo para ${startTime} segundos.`);
+        videoElement.currentTime = startTime;
+      }
+    };
+
+    const handleTimeUpdate = () => {
+      if (onProgress) {
+        onProgress({ playedSeconds: videoElement.currentTime });
+      }
+    };
+
+    videoElement.addEventListener('loadedmetadata', handleMetadataLoaded);
+    videoElement.addEventListener('timeupdate', handleTimeUpdate);
+
+    return () => {
+      videoElement.removeEventListener('loadedmetadata', handleMetadataLoaded);
+      videoElement.removeEventListener('timeupdate', handleTimeUpdate);
+    };
+  }, [resource, onProgress, startTime]);
+
+  if (!resource || resource.type !== 'lesson') {
     return (
       <div className='resource-placeholder'>
-        <h2>Selecione um item na barra lateral para começar.</h2>
-        <p>Seu progresso será salvo automaticamente.</p>
+        <h2>Selecione uma aula na barra lateral.</h2>
       </div>
     );
   }
 
-  switch (resource.type) {
-    case 'lesson':
-      return (
-        <div className='resource-content'>
-          <div className='video-player-wrapper'>
-            {/* Usando um iframe para o vídeo do YouTube */}
-            <iframe
-              src={resource.data.url.replace('watch?v=', 'embed/')} // Converte URL do YouTube para embed
-              title={resource.data.name}
-              frameBorder='0'
-              allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture'
-              allowFullScreen
-            />
-          </div>
-          <h3>{resource.data.name}</h3>
-          <p>{resource.data.description}</p>
-        </div>
-      );
-    case 'exam':
-      return (
-        <div className='resource-content'>
-          <h3>Prova: {resource.data.name}</h3>
-          <p>Criado por: {resource.data.owner}</p>
-          <div className='exam-questions'>
-            {resource.data.questions.map((q, index) => (
-              <div key={q.questionId} className='question-card'>
-                <h4>
-                  {index + 1}. {q.question}
-                </h4>
-                <div className='alternatives'>
-                  {q.alternatives.map((alt) => (
-                    <div key={alt.id} className='alternative'>
-                      <input type='radio' id={`alt-${alt.id}`} name={`question-${q.questionId}`} />
-                      <label htmlFor={`alt-${alt.id}`}>{alt.description}</label>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            ))}
-          </div>
-          <button className='submit-exam-btn'>Enviar Respostas</button>
-        </div>
-      );
-    // Adicione mais casos se houver outros tipos de recursos, como 'material'
-    default:
-      return (
-        <div className='resource-placeholder'>
-          <h2>Tipo de recurso não suportado.</h2>
-        </div>
-      );
+  const videoUrl = resource.data?.url;
+  if (!videoUrl) {
+    return <div className='resource-placeholder'>URL da aula não encontrada.</div>;
   }
+
+  return (
+    <div className='resource-content'>
+      <div className='video-player-wrapper-final'>
+        <video
+          ref={videoRef}
+          key={videoUrl}
+          controls
+          autoPlay
+          muted
+          playsInline
+          style={{ width: '100%', height: 'auto' }}>
+          <source src={videoUrl} type='video/mp4' />
+          Seu navegador não suporta a tag de vídeo.
+        </video>
+      </div>
+      <h3>{resource.data.name}</h3>
+      <p>{resource.data.description}</p>
+    </div>
+  );
 };
 
 export default function WatchCourse() {
   const { courseId, resourceType, resourceId } = useParams();
   const navigate = useNavigate();
-  // TODO: Substituir '1' pelo ID do usuário logado (vindo de um contexto de autenticação)
-  const userId = '1';
+  const [userId] = useAtom(userIdAtom);
 
   const [courseProgress, setCourseProgress] = useState(null);
   const [currentResource, setCurrentResource] = useState(null);
