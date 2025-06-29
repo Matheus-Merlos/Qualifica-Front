@@ -15,14 +15,19 @@ import './styles.css';
 import { useAtom } from 'jotai';
 import { userIdAtom } from '../../store/persistentAtoms';
 import ResourceViewer from './ResourceViewer';
+import SearchBar from '../../components/SearchBar';
 
 export default function WatchCourse() {
   const { courseId, resourceType, resourceId, sectionResourceId } = useParams();
+
   const navigate = useNavigate();
+
   const [userId] = useAtom(userIdAtom);
+
   const [courseProgress, setCourseProgress] = useState(null);
   const [currentResource, setCurrentResource] = useState(null);
   const [openSections, setOpenSections] = useState([]);
+
   const [loading, setLoading] = useState(true);
 
   const [commentContent, setCommentContent] = useState('');
@@ -136,95 +141,98 @@ export default function WatchCourse() {
   }
 
   return (
-    <div className='watch-course-page'>
-      <aside className='course-sidebar'>
-        <header className='sidebar-header'>
-          <Link to={`/course/${courseId}`} className='back-link'>
-            <FiArrowLeft /> Voltar
-          </Link>
+    <>
+      <SearchBar />
+      <div className='watch-course-page'>
+        <aside className='course-sidebar'>
+          <header className='sidebar-header'>
+            <Link to={`/course/${courseId}`} className='back-link'>
+              <FiArrowLeft /> Voltar
+            </Link>
 
-          <h3>{courseProgress.name}</h3>
+            <h3>{courseProgress.name}</h3>
 
-          <div className='progress-bar'>
-            {/* Lógica de progresso precisa ser implementada */}
+            <div className='progress-bar'>
+              {/* Lógica de progresso precisa ser implementada */}
 
-            <div className='progress-bar-fill' style={{ width: '20%' }} />
-          </div>
-        </header>
+              <div className='progress-bar-fill' style={{ width: '20%' }} />
+            </div>
+          </header>
 
-        <div className='course-content-list'>
-          {courseProgress.sections.map((section) => (
-            <div key={section.id} className='sidebar-section'>
-              <div
-                className='sidebar-section-header'
-                onClick={() => handleToggleSection(section.id)}>
-                <span>{section.name}</span>
+          <div className='course-content-list'>
+            {courseProgress.sections.map((section) => (
+              <div key={section.id} className='sidebar-section'>
+                <div
+                  className='sidebar-section-header'
+                  onClick={() => handleToggleSection(section.id)}>
+                  <span>{section.name}</span>
 
-                {openSections.includes(section.id) ? <FiChevronUp /> : <FiChevronDown />}
-              </div>
+                  {openSections.includes(section.id) ? <FiChevronUp /> : <FiChevronDown />}
+                </div>
 
-              {openSections.includes(section.id) && (
-                <ul className='resource-list'>
-                  {section.resources.map((resource) => (
-                    <li
-                      key={`${resource.type}-${resource.content.id}`}
-                      className={`resource-item ${resource.content.id.toString() === resourceId ? 'active' : ''}`}
-                      onClick={() => handleSelectResource(resource)}>
-                      {resource.type === 'lesson' || resource.type === 'exam' ? (
-                        resource.completed ? (
-                          <FiCheckSquare className='completed-icon' />
+                {openSections.includes(section.id) && (
+                  <ul className='resource-list'>
+                    {section.resources.map((resource) => (
+                      <li
+                        key={`${resource.type}-${resource.content.id}`}
+                        className={`resource-item ${resource.content.id.toString() === resourceId ? 'active' : ''}`}
+                        onClick={() => handleSelectResource(resource)}>
+                        {resource.type === 'lesson' || resource.type === 'exam' ? (
+                          resource.completed ? (
+                            <FiCheckSquare className='completed-icon' />
+                          ) : (
+                            <FiSquare className='incompleted-icon' />
+                          )
                         ) : (
-                          <FiSquare className='incompleted-icon' />
-                        )
-                      ) : (
-                        <div className='icon-placeholder' />
-                      )}
+                          <div className='icon-placeholder' />
+                        )}
 
-                      <span className='resource-icon'>{getResourceIcon(resource.type)}</span>
+                        <span className='resource-icon'>{getResourceIcon(resource.type)}</span>
 
-                      <span>{resource.content.name}</span>
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </div>
-          ))}
-        </div>
-      </aside>
-
-      <main className='main-content-area'>
-        {loading ? (
-          <div>Carregando conteúdo...</div>
-        ) : (
-          <ResourceViewer resource={currentResource} />
-        )}
-
-        {/* Seção de Comentários */}
-
-        {resourceType === 'lesson' && (
-          <div className='comments-section'>
-            <h3>Comentários</h3>
-
-            <div className='comment-box'>
-              <textarea
-                placeholder='Deixe seu comentário...'
-                onChange={(e) => setCommentContent(e.target.value)}
-                value={commentContent}
-              />
-
-              <button onClick={handleCommentCreation}>Enviar</button>
-            </div>
-
-            {comments.map((comment) => (
-              <div className='comment' key={comment.id}>
-                <p>
-                  <strong>{comment.user}</strong> {comment.content}
-                </p>
+                        <span>{resource.content.name}</span>
+                      </li>
+                    ))}
+                  </ul>
+                )}
               </div>
             ))}
           </div>
-        )}
-      </main>
-    </div>
+        </aside>
+
+        <main className='main-content-area'>
+          {loading ? (
+            <div>Carregando conteúdo...</div>
+          ) : (
+            <ResourceViewer resource={currentResource} />
+          )}
+
+          {/* Seção de Comentários */}
+
+          {resourceType === 'lesson' && (
+            <div className='comments-section'>
+              <h3>Comentários</h3>
+
+              <div className='comment-box'>
+                <textarea
+                  placeholder='Deixe seu comentário...'
+                  onChange={(e) => setCommentContent(e.target.value)}
+                  value={commentContent}
+                />
+
+                <button onClick={handleCommentCreation}>Enviar</button>
+              </div>
+
+              {comments.map((comment) => (
+                <div className='comment' key={comment.id}>
+                  <p>
+                    <strong>{comment.user}</strong> {comment.content}
+                  </p>
+                </div>
+              ))}
+            </div>
+          )}
+        </main>
+      </div>
+    </>
   );
 }
