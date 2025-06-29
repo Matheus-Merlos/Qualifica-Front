@@ -3,6 +3,7 @@ import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import Curso from './pages/Curso';
 import Home from './pages/Home';
 import Login from './pages/Login';
+import CriarCurso from './components/CriarCurso';
 import Route404 from './pages/404';
 import { Provider } from 'jotai';
 
@@ -18,6 +19,7 @@ function App() {
           <Route path='/home' element={<Home />} />
           <Route path='/curso' element={<Curso />} />
           <Route path='/course/:id' element={<Curso />} />
+          <Route path='/criar-curso' element={<CriarCurso />} />
 
           <Route path='*' element={<Route404 />} />
         </Routes>
