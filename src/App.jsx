@@ -9,6 +9,7 @@ import Search from './pages/Search';
 import WatchCourse from './pages/WatchCourse';
 import UserProfile from './pages/UserProfile';
 import CourseSessions from './pages/CourseSessions';
+import 'bootstrap/dist/css/bootstrap.min.css';
 
 function App() {
   return (
