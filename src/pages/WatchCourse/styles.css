@@ -1,0 +1,227 @@
+:root {
+  --primary-500: #6366F1;
+  --primary-600: #4F46E5;
+  --neutral-900: #111827;
+  --neutral-800: #1F2937;
+  --neutral-700: #374151;
+  --neutral-600: #4B5563;
+  --neutral-200: #E5E7EB;
+  --neutral-100: #F3F4F6;
+  --neutral-50: #F9FAFB;
+  --green-500: #10B981;
+}
+
+.watch-course-page {
+  display: flex;
+  height: 100vh;
+  overflow: hidden;
+  background-color: var(--neutral-100);
+}
+
+/* === BARRA LATERAL (SIDEBAR) === */
+.course-sidebar {
+  width: 360px;
+  flex-shrink: 0;
+  background-color: #fff;
+  border-right: 1px solid var(--neutral-200);
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
+
+.sidebar-header {
+  padding: 1rem;
+  border-bottom: 1px solid var(--neutral-200);
+}
+
+.sidebar-header h3 {
+  margin: 0.5rem 0;
+  font-size: 1.2rem;
+  color: var(--neutral-900);
+}
+
+.back-link {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--primary-600);
+  text-decoration: none;
+  font-weight: 500;
+  margin-bottom: 1rem;
+}
+
+.course-content-list {
+  flex-grow: 1;
+  overflow-y: auto;
+}
+
+.sidebar-section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem 1rem;
+  font-weight: 600;
+  background-color: var(--neutral-50);
+  border-bottom: 1px solid var(--neutral-200);
+  cursor: pointer;
+}
+
+.resource-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.resource-item {
+  display: flex;
+  align-items: center;
+  padding: 0.75rem 1.5rem;
+  border-bottom: 1px solid var(--neutral-200);
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  gap: 0.75rem;
+}
+
+.resource-item:hover {
+  background-color: var(--neutral-100);
+}
+
+.resource-item.active {
+  background-color: #E0E7FF;
+  border-right: 3px solid var(--primary-500);
+  font-weight: 600;
+}
+
+.resource-item .completed-icon {
+  color: var(--green-500);
+}
+
+.resource-item .incompleted-icon {
+  color: var(--neutral-600);
+}
+
+.resource-icon {
+    color: var(--neutral-700);
+}
+
+.icon-placeholder {
+    width: 1em; /* Mesmo tamanho dos ícones */
+}
+
+/* === ÁREA DE CONTEÚDO PRINCIPAL === */
+.main-content-area {
+  flex-grow: 1;
+  padding: 2rem;
+  overflow-y: auto;
+}
+
+.resource-placeholder {
+  text-align: center;
+  padding: 4rem;
+  background-color: #fff;
+  border-radius: 8px;
+  color: var(--neutral-600);
+}
+
+.video-player-wrapper {
+  position: relative;
+  padding-bottom: 56.25%; /* Proporção 16:9 */
+  height: 0;
+  overflow: hidden;
+  margin-bottom: 1.5rem;
+  border-radius: 8px;
+  background-color: #000;
+}
+
+.video-player-wrapper iframe {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.resource-content h3 {
+  font-size: 1.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.exam-questions {
+  margin-top: 2rem;
+}
+
+.question-card {
+  background-color: #fff;
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin-bottom: 1rem;
+  border: 1px solid var(--neutral-200);
+}
+
+.alternatives {
+  margin-top: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.alternative {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.submit-exam-btn {
+  background-color: var(--primary-500);
+  color: white;
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  cursor: pointer;
+  margin-top: 1rem;
+}
+
+/* === SEÇÃO DE COMENTÁRIOS === */
+.comments-section {
+  margin-top: 3rem;
+  padding-top: 2rem;
+  border-top: 1px solid var(--neutral-200);
+}
+
+.comment-box textarea {
+  width: 100%;
+  min-height: 80px;
+  padding: 0.75rem;
+  border: 1px solid var(--neutral-200);
+  border-radius: 8px;
+  font-family: inherit;
+  margin-bottom: 0.5rem;
+}
+
+.comment-box button {
+  float: right;
+  background-color: var(--primary-500);
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+}
+
+/* === RESPONSIVIDADE === */
+@media (max-width: 1024px) {
+  .watch-course-page {
+    flex-direction: column;
+    overflow: auto;
+  }
+  .course-sidebar {
+    width: 100%;
+    height: auto;
+    max-height: 50vh; /* Limita a altura em telas menores */
+    border-right: none;
+    border-bottom: 1px solid var(--neutral-200);
+  }
+  .main-content-area {
+    padding: 1.5rem;
+  }
+}
