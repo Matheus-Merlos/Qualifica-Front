@@ -38,6 +38,11 @@
   background: #fff;
 }
 
+.search-bar-link {
+  text-decoration: none;
+  color: inherit;
+}
+
 .search-bar-top {
   border: none;
   background: transparent;

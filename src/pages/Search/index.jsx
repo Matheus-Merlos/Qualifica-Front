@@ -42,7 +42,7 @@ export default function Search() {
         {courses.length > 0 &&
           courses.map((course) => (
             <Link key={course.id} to={`/course/${course.id}`} className='search-course-result-link'>
-              <div className='course-card'>
+              <div className='search-course-card'>
                 <img src={course.imageUrl} alt={course.name} className='course-image' />
                 <div className='course-info'>
                   <h3 className='course-title'>{course.name}</h3>
