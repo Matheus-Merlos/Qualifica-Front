@@ -103,7 +103,7 @@ export default function WatchCourse() {
   }
 
   useEffect(() => {
-    fetchComments();
+    if (sectionResourceId) fetchComments();
   }, [sectionResourceId]);
 
   // Efeito para buscar o progresso geral do curso
@@ -247,12 +247,14 @@ export default function WatchCourse() {
         <main className='main-content-area'>
           {loading ? (
             <div>Carregando conteúdo...</div>
-          ) : (
+          ) : currentResource ? (
             <ResourceViewer
               resource={currentResource}
               onProgress={currentResource.type === 'lesson' ? saveProgress : () => {}}
               startTime={currentResource.type === 'lesson' ? currentProgress : 0}
             />
+          ) : (
+            <div>Nenhum conteúdo encontrado.</div>
           )}
 
           {/* Seção de Comentários */}

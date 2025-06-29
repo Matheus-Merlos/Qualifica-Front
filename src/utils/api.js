@@ -2,7 +2,7 @@ import axios from 'axios';
 
 const api = axios.create({
   baseURL: 'https://api.test.qualificamais.app.br/',
-  timeout: 10000,
+  timeout: 100000,
 });
 
 api.interceptors.request.use(
