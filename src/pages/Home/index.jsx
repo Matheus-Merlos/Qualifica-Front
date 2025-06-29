@@ -38,7 +38,7 @@ export default function Home() {
     return () => window.removeEventListener('click', close);
   }, []);
 
-  const fetchCourses = async () => {
+  async function fetchCourses() {
     try {
       const response = await api.get('/course', {
         headers: {
@@ -67,7 +67,7 @@ export default function Home() {
     } catch (err) {
       setError('Erro ao carregar cursos');
     }
-  };
+  }
 
   useEffect(() => {
     fetchCourses();
@@ -265,7 +265,7 @@ export default function Home() {
             <div className='card-row'>
               {newCourses.map((course) => (
                 <div key={course.id} className='course-card' onClick={() => openCourse(course.id)}>
-                  <img src={course.image || '/placeholder-course.png'} alt={course.name} />
+                  <img src={course.imageUrl || '/placeholder-course.png'} alt={course.name} />
                   <div className='overlay'>
                     <span>{course.name}</span>
                     <span>Novo</span>
