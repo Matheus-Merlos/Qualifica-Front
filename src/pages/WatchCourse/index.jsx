@@ -119,17 +119,15 @@ export default function WatchCourse() {
                       key={`${resource.type}-${resource.content.id}`}
                       className={`resource-item ${resource.content.id.toString() === resourceId ? 'active' : ''}`}
                       onClick={() => handleSelectResource(resource.type, resource.content.id)}>
-                      {
-                        resource.type === 'lesson' || resource.type === 'exam' ? (
-                          resource.completed ? (
-                            <FiCheckSquare className='completed-icon' />
-                          ) : (
-                            <FiSquare className='incompleted-icon' />
-                          )
+                      {resource.type === 'lesson' || resource.type === 'exam' ? (
+                        resource.completed ? (
+                          <FiCheckSquare className='completed-icon' />
                         ) : (
-                          <div className='icon-placeholder' />
-                        ) // Espaço para 'material'
-                      }
+                          <FiSquare className='incompleted-icon' />
+                        )
+                      ) : (
+                        <div className='icon-placeholder' />
+                      )}
                       <span className='resource-icon'>{getResourceIcon(resource.type)}</span>
                       <span>{resource.content.name}</span>
                     </li>
@@ -148,7 +146,7 @@ export default function WatchCourse() {
           <ResourceViewer resource={currentResource} />
         )}
 
-        {/* Placeholder para a seção de comentários */}
+        {/* Seção de Comentários */}
         <div className='comments-section'>
           <h3>Comentários</h3>
           <div className='comment-box'>
