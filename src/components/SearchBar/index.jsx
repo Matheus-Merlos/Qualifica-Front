@@ -4,6 +4,7 @@ import { searchParamAtom } from '../../store/atom';
 import { nameAtom } from '../../store/persistentAtoms';
 import { Link, useNavigate } from 'react-router-dom';
 import './styles.css';
+import { FiUser } from 'react-icons/fi';
 
 export default function SearchBar() {
   const [searchParam, setSearchParam] = useAtom(searchParamAtom);
@@ -66,13 +67,13 @@ export default function SearchBar() {
             </div>
           </div>
         </div>
-        <div className='right'>
+        <div className='search-bar-right'>
           <div
             className='profile-card'
             ref={cardRef}
             style={{ display: visible ? 'block' : 'none' }}>
             <div className='profile-header'>
-              <img src='/google.png' alt='Perfil' className='profile-picture-large' />
+              <FiUser size={45} className='profile-picture-large' />
               <h3>{name}</h3>
             </div>
             <hr />
@@ -83,13 +84,8 @@ export default function SearchBar() {
               <li className='logout'>Sair</li>
             </ul>
           </div>
-          <img
-            src='/google.png'
-            alt='Perfil'
-            className='profile-picture'
-            ref={pictureRef}
-            onClick={toggleCard}
-          />
+
+          <FiUser size={45} className='profile-picture' ref={pictureRef} onClick={toggleCard} />
         </div>
       </header>
     </>
