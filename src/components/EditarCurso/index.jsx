@@ -1,14 +1,25 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Container, Form, Button, Row, Col, ListGroup } from 'react-bootstrap';
 import Header from '../Header';
 
-export default function CriarCurso() {
+export default function EditarCurso({ courseData }) {
   const [course, setCourse] = useState({
     name: '',
     image: null,
     description: '',
     tags: [],
   });
+
+  useEffect(() => {
+    if (courseData) {
+      setCourse({
+        name: courseData.name || '',
+        image: null, // Para manter a imagem atual, você pode precisar de uma lógica adicional
+        description: courseData.description || '',
+        tags: courseData.tags || [],
+      });
+    }
+  }, [courseData]);
 
   const handleFileChange = (files) => {
     setCourse(prev => ({
@@ -39,19 +50,21 @@ export default function CriarCurso() {
     e.preventDefault();
     const formData = new FormData();
     formData.append('name', course.name);
-    formData.append('image', course.image);
+    if (course.image) {
+      formData.append('image', course.image);
+    }
     formData.append('description', course.description);
-    formData.append('tags', JSON.stringify(course.tags));
+    formData.append('tags', JSON.stringify(course.tags)); // Enviando tags como JSON
 
- 
-    console.log('Enviando curso:', course);
+    // TODO: Enviar formData via API (ex: fetch ou axios)
+    console.log('Atualizando curso:', course);
   };
 
   return (
     <>
       <Header searchable={false} />
       <Container fluid className="my-4 flex-1 bg-light">
-        <h4>Cadastrar novo curso</h4>
+        <h4>Editar curso</h4>
         <Form onSubmit={handleSubmit}>
           <h6 className="mt-4">Informações do curso</h6>
 
@@ -102,13 +115,18 @@ export default function CriarCurso() {
             <Col md>
               <Form.Group className="mb-3">
                 <Form.Label>Imagem do curso</Form.Label>
+                {courseData && courseData.image && (
+                  <div className="mb-2">
+                    <img src={URL.createObjectURL(courseData.image)} alt="Imagem do curso" style={{ maxWidth: '100%', maxHeight: '200px' }} />
+                  </div>
+                )}
                 <Form.Control type="file" onChange={(e) => handleFileChange(e.target.files)} />
               </Form.Group>
             </Col>
           </Row>
 
           <div className="d-flex gap-2">
-            <Button type="submit" variant="primary">Salvar curso</Button>
+            <Button type="submit" variant="primary">Atualizar curso</Button>
             <Button variant="outline-secondary">Cancelar</Button>
           </div>
         </Form>

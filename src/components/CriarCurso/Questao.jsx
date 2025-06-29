@@ -4,7 +4,7 @@ import { Form, Row, Col, Button } from 'react-bootstrap';
 export default function Questao({ index, question, onChange, onRemove }) {
   const handleChange = (field, value) => {
     const updated = { ...question, [field]: value };
-    onChange(index, updated);
+    onChange(updated);
   };
 
   const alternatives = question.alternatives || {};
