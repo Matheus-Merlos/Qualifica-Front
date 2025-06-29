@@ -6,6 +6,8 @@ import Login from './pages/Login';
 import Route404 from './pages/404';
 import { Provider } from 'jotai';
 import Search from './pages/Search';
+import UserProfile from './pages/UserProfile';
+import CourseSessions from './pages/CourseSessions';
 
 function App() {
   return (
@@ -21,6 +23,8 @@ function App() {
 
           <Route path='/search' element={<Search />} />
 
+          <Route path='/profile' element={<UserProfile />} />
+          <Route path='/cursos/:courseId/sessoes' element={<CourseSessions />} />
           <Route path='*' element={<Route404 />} />
         </Routes>
       </BrowserRouter>
