@@ -1,6 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { FiArrowLeft, FiBookOpen, FiDownload } from 'react-icons/fi';
+import {
+  FiArrowLeft,
+  FiBookOpen,
+  FiDownload,
+  FiFilm,
+  FiClipboard,
+  FiPaperclip,
+  FiChevronDown,
+  FiChevronUp,
+} from 'react-icons/fi';
 import api from '../../utils/api';
 import './styles.css';
 
@@ -29,6 +38,20 @@ const ImageWithFallback = ({
   return <img src={imgSrc} alt={alt} onError={handleError} {...props} />;
 };
 
+// Componente auxiliar para renderizar o ícone correto baseado no tipo de recurso
+const ResourceIcon = ({ type }) => {
+  switch (type) {
+    case 'lesson':
+      return <FiFilm className='resource-icon' />;
+    case 'exam':
+      return <FiClipboard className='resource-icon' />;
+    case 'material':
+      return <FiPaperclip className='resource-icon' />;
+    default:
+      return <FiBookOpen className='resource-icon' />;
+  }
+};
+
 export default function Curso() {
   const [course, setCourse] = useState({
     id: null,
@@ -48,16 +71,17 @@ export default function Curso() {
   const [error, setError] = useState(null);
   const { id } = useParams();
 
+  // Estado para controlar qual seção do acordeão está aberta
+  const [openSectionId, setOpenSectionId] = useState(null);
+
   useEffect(() => {
     const fetchCourse = async () => {
       try {
         setLoading(true);
         setError(null);
         const response = await api.get(`/course/${id}`);
-
         const courseData = response.data;
 
-        // Processar os dados recebidos da API
         const processedData = {
           ...courseData,
           name: courseData.name || 'Curso sem nome',
@@ -69,12 +93,20 @@ export default function Curso() {
           sections: courseData.sections || [],
           tags: courseData.tags || [],
           totalLessons:
-            courseData.sections?.reduce((acc, section) => acc + (section.lessonCount || 0), 0) || 0,
-          totalDuration: '4h 20min', // Pode ser calculado se houver dados de duração
+            courseData.sections?.reduce(
+              (acc, section) => acc + (section.resources?.length || 0),
+              0
+            ) || 0,
+          totalDuration: '4h 20min',
           lastAccessed: new Date().toLocaleDateString('pt-BR'),
         };
 
         setCourse(processedData);
+
+        // Abre a primeira seção por padrão, se houver alguma
+        if (processedData.sections?.length > 0) {
+          setOpenSectionId(processedData.sections[0].id);
+        }
       } catch (error) {
         console.error('Erro ao buscar curso:', error);
         setError('Não foi possível carregar as informações do curso. Tente novamente mais tarde.');
@@ -91,12 +123,18 @@ export default function Curso() {
     }
   }, [id]);
 
-  // Dados simulados para materiais de apoio
-  const materials = [
-    { id: 1, name: 'Guia rápido PDF', type: 'pdf' },
-    { id: 2, name: 'Links recomendados', type: 'link' },
-    { id: 3, name: 'Planilha de exercícios', type: 'sheet' },
-  ];
+  // Função para abrir/fechar as seções do acordeão
+  const toggleSection = (sectionId) => {
+    setOpenSectionId(openSectionId === sectionId ? null : sectionId);
+  };
+
+  // Função para rolar a tela suavemente até um elemento
+  const scrollToSection = (sectionId) => {
+    const sectionElement = document.getElementById(sectionId);
+    if (sectionElement) {
+      sectionElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  };
 
   if (loading) {
     return (
@@ -170,7 +208,7 @@ export default function Curso() {
         {/* Left Column - Course Content */}
         <div className='about'>
           {/* Description Section */}
-          <section className='section'>
+          <section id='course-description' className='section'>
             <h2 className='section-title'>Descrição</h2>
             {course.description ? (
               <p>{course.description}</p>
@@ -178,7 +216,6 @@ export default function Curso() {
               <p className='no-content'>Este curso ainda não possui uma descrição.</p>
             )}
 
-            {/* Tags do Curso */}
             {course.tags?.length > 0 && (
               <div className='tags-container'>
                 {course.tags.map((tag, index) => (
@@ -191,37 +228,43 @@ export default function Curso() {
           </section>
 
           {/* Course Content Section */}
-          <section className='section'>
+          <section id='course-content' className='section'>
             <h2 className='section-title'>Conteúdo do curso</h2>
             {course.sections?.length > 0 ? (
-              course.sections.map((section) => (
-                <div key={section.id} className='module'>
-                  <div className='module-title'>{section.title || `Seção ${section.id}`}</div>
-                  {section.lessonCount && (
-                    <div className='module-meta'>
-                      {section.lessonCount} {section.lessonCount === 1 ? 'aula' : 'aulas'}
+              <div className='course-content-accordion'>
+                {course.sections.map((section) => (
+                  <div key={section.id} className='course-section'>
+                    <div
+                      className='section-header'
+                      onClick={() => toggleSection(section.id)}
+                      role='button'
+                      aria-expanded={openSectionId === section.id}>
+                      <span className='section-header-title'>
+                        {section.name || `Seção ${section.order}`}
+                      </span>
+                      <div className='section-header-meta'>
+                        <span>{section.resources?.length || 0} aulas</span>
+                        {openSectionId === section.id ? <FiChevronUp /> : <FiChevronDown />}
+                      </div>
                     </div>
-                  )}
-                </div>
-              ))
+                    {openSectionId === section.id && (
+                      <ul className='resource-list'>
+                        {section.resources?.map((resource, index) => (
+                          <li
+                            key={`${resource.type}-${resource.content.id}-${index}`}
+                            className='resource-item'>
+                            <ResourceIcon type={resource.type} />
+                            <span className='resource-name'>{resource.content.name}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                  </div>
+                ))}
+              </div>
             ) : (
               <p className='no-content'>Nenhum conteúdo disponível no momento.</p>
             )}
-          </section>
-
-          {/* Materials Section */}
-          <section className='section'>
-            <h2 className='section-title'>Materiais de apoio</h2>
-            <ul className='material-list'>
-              {materials.map((material) => (
-                <li key={material.id} className='material-item'>
-                  {material.type === 'pdf' && '📄'}
-                  {material.type === 'link' && '🔗'}
-                  {material.type === 'sheet' && '📊'}
-                  {material.name}
-                </li>
-              ))}
-            </ul>
           </section>
         </div>
 
@@ -231,16 +274,6 @@ export default function Curso() {
             <h3 className='section-title'>Continuar onde parou</h3>
             <button className='btn btn-primary'>Continuar curso</button>
             <button className='btn btn-outline'>Reiniciar</button>
-            <p className='last-accessed'>
-              Último acesso em{' '}
-              {new Date().toLocaleDateString('pt-BR', {
-                day: '2-digit',
-                month: '2-digit',
-                year: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit',
-              })}
-            </p>
           </div>
         </aside>
       </div>
@@ -248,16 +281,16 @@ export default function Curso() {
       {/* Mobile Navigation */}
       <div className='mobile-nav'>
         <Link to='/home' className='mobile-nav-item'>
-          <FiArrowLeft size={20} />
+          <FiArrowLeft size={22} />
           <span>Voltar</span>
         </Link>
-        <button className='mobile-nav-item'>
-          <FiBookOpen size={20} />
-          <span>Conteúdo</span>
+        <button className='mobile-nav-item' onClick={() => scrollToSection('course-description')}>
+          <FiBookOpen size={22} />
+          <span>Sobre</span>
         </button>
-        <button className='mobile-nav-item'>
-          <FiDownload size={20} />
-          <span>Materiais</span>
+        <button className='mobile-nav-item' onClick={() => scrollToSection('course-content')}>
+          <FiDownload size={22} />
+          <span>Conteúdo</span>
         </button>
       </div>
     </div>

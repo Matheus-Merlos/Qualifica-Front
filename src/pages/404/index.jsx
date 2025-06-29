@@ -5,12 +5,13 @@ import { useNavigate } from 'react-router-dom';
 export default function Route404() {
   const navigate = useNavigate();
   return (
-    <>
+    <main id='background-404'>
       <svg
         width='380px'
         height='500px'
         viewBox='0 0 837 1045'
         version='1.1'
+        id='svg-404'
         xmlns='http://www.w3.org/2000/svg'>
         <g id='Page-1' stroke='none' strokeWidth='1' fill='none' fillRule='evenodd'>
           <path
@@ -50,12 +51,12 @@ export default function Route404() {
         <p>Página não encontrada</p>
         <div className='buttons-con'>
           <div className='action-link-wrap'>
-            <a href='' className='link-button' onClick={() => navigate('/home')}>
+            <a href='' className='link-button' onClick={() => navigate('/')}>
               Ir para home
             </a>
           </div>
         </div>
       </div>
-    </>
+    </main>
   );
 }

@@ -328,7 +328,7 @@ button {
   .main-content {
     flex-direction: column;
   }
-  
+
   .cta-sidebar {
     max-width: 100%;
     position: static;
@@ -341,19 +341,19 @@ button {
     height: 220px;
     border-radius: 0;
   }
-  
+
   .hero-title {
     font-size: 1.5rem;
   }
-  
+
   .hero-meta {
     font-size: 0.8125rem;
   }
-  
+
   .main-content {
     padding: 0 1rem 2rem;
   }
-  
+
   .section {
     padding: 1.25rem;
   }
@@ -701,4 +701,141 @@ button {
       }
     }
   }
+}
+
+.course-content-accordion {
+  border: 1px solid #e5e7eb; /* Cor de borda neutra */
+  border-radius: var(--radius-md);
+  overflow: hidden; /* Garante que os cantos arredondados sejam aplicados aos filhos */
+}
+
+.course-section {
+  background-color: #fff;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.course-section:last-child {
+  border-bottom: none; /* Remove a borda do último item */
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 1.25rem;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.section-header:hover {
+  background-color: var(--neutral-100);
+}
+
+.section-header-title {
+  font-weight: 600;
+  color: var(--neutral-800);
+  font-size: 1rem;
+}
+
+.section-header-meta {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 0.875rem;
+  color: var(--neutral-600);
+}
+
+/* Lista de Recursos (Aulas, Provas, etc.) */
+.resource-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  background-color: #fafafa; /* Fundo levemente diferente para destacar */
+  padding: 0.5rem 0;
+  border-top: 1px solid #e5e7eb;
+}
+
+.resource-item {
+  display: flex;
+  align-items: center;
+  padding: 0.75rem 1.25rem 0.75rem 2.5rem; /* Adiciona um recuo à esquerda */
+  font-size: 0.9375rem; /* 15px */
+  color: var(--neutral-700);
+  border-bottom: 1px solid #f3f4f6; /* Borda bem sutil entre os itens */
+}
+
+.resource-item:last-child {
+  border-bottom: none;
+}
+
+.resource-icon {
+  margin-right: 1rem;
+  color: var(--neutral-600);
+  flex-shrink: 0; /* Impede que o ícone seja espremido */
+}
+
+.resource-name {
+  flex-grow: 1;
+}
+
+/* ================================== */
+/* === ESTILOS DA NAVEGAÇÃO MÓVEL === */
+/* ================================== */
+
+/* Oculta a barra de navegação em telas maiores (desktop) */
+@media (min-width: 1024px) {
+  .mobile-nav {
+    display: none;
+  }
+}
+
+.mobile-nav {
+  /* Posicionamento */
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+
+  /* Layout */
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  height: 65px; /* Altura da barra */
+
+  /* Estilo */
+  background-color: #ffffff;
+  border-top: 1px solid #e5e7eb;
+  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.05); /* Sombra sutil */
+}
+
+.mobile-nav-item {
+  /* Layout interno (ícone em cima, texto embaixo) */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  flex-grow: 1; /* Faz com que todos os itens ocupem o mesmo espaço */
+
+  /* Estilo do item */
+  background: none;
+  border: none;
+  padding: 0.5rem 0;
+  color: var(--neutral-700);
+  font-size: 0.75rem; /* Texto menor */
+  font-weight: 500;
+  text-decoration: none;
+  transition: color 0.2s ease;
+  height: 100%;
+}
+
+.mobile-nav-item:hover,
+.mobile-nav-item:focus {
+  color: var(--primary-500); /* Cor de destaque ao interagir */
+  background-color: #f9fafb; /* Fundo sutil para feedback */
+}
+
+/* Espaçamento entre o ícone e o texto */
+.mobile-nav-item span {
+  margin-top: 4px;
 }

@@ -21,7 +21,7 @@ function Login() {
   const [registerBio, setRegisterBio] = useState('');
 
   const [, setUserId] = useAtom(userIdAtom);
-  const [token, setToken] = useAtom(tokenAtom);
+  const [, setToken] = useAtom(tokenAtom);
   const [, setEmail] = useAtom(emailAtom);
   const [, setName] = useAtom(nameAtom);
   const [, setBio] = useAtom(bioAtom);
@@ -72,11 +72,6 @@ function Login() {
       alert('Falha no cadastro. Tente novamente.');
     }
   };
-
-  if (token) {
-    navigate('/home');
-    return null;
-  }
 
   return (
     <div className='container'>

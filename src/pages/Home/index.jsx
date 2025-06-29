@@ -4,6 +4,7 @@ import api from '../../utils/api';
 import './styles.css';
 import { useAtom } from 'jotai';
 import { nameAtom, userIdAtom } from '../../store/persistentAtoms';
+import SearchBar from '../../components/SearchBar';
 
 export default function Home() {
   /* ­---------------- profile pop-up ---------------- */
@@ -161,52 +162,7 @@ export default function Home() {
             {error}
           </div>
         )}
-        <header className='top-bar'>
-          <div className='left'>
-            <h1 className='logo-text'>
-              Qualifica<span>+</span>
-            </h1>
-            <div className='search-wrap' ref={searchRef}>
-              <div className='search-box'>
-                <input
-                  type='text'
-                  placeholder={
-                    isSearching ? 'Digite para pesquisar cursos...' : 'Clique aqui para pesquisar'
-                  }
-                  className='search-bar-top'
-                  value={searchQuery}
-                  onChange={handleSearch}
-                  onFocus={() => setIsSearching(true)}
-                />
-              </div>
-            </div>
-          </div>
-          <div className='right'>
-            <div
-              className='profile-card'
-              ref={cardRef}
-              style={{ display: visible ? 'block' : 'none' }}>
-              <div className='profile-header'>
-                <img src='/google.png' alt='Perfil' className='profile-picture-large' />
-                <h3>{name}</h3>
-              </div>
-              <hr />
-              <ul className='profile-options'>
-                <li>Meus Dados</li>
-                <li>Meus Cursos</li>
-                <li>Configurações</li>
-                <li className='logout'>Sair</li>
-              </ul>
-            </div>
-            <img
-              src='/google.png'
-              alt='Perfil'
-              className='profile-picture'
-              ref={pictureRef}
-              onClick={toggleCard}
-            />
-          </div>
-        </header>
+        <SearchBar />
         <main className={`home-container ${isSearching ? 'search-active' : ''}`}>
           {isSearching && (
             <div className='search-overlay' ref={searchOverlayRef}>
@@ -234,7 +190,7 @@ export default function Home() {
             <div className='card-row'>
               {continueCourses.map((course) => (
                 <div key={course.id} className='course-card' onClick={() => openCourse(course.id)}>
-                  <img src={course.image || '/placeholder-course.png'} alt={course.name} />
+                  <img src={course.thumbnail || '/placeholder-course.png'} alt={course.name} />
                   <div className='overlay'>
                     <span>{course.name}</span>
                     <span>{course.progress || 0}%</span>
