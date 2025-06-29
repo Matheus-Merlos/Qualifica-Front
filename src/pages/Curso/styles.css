@@ -328,7 +328,7 @@ button {
   .main-content {
     flex-direction: column;
   }
-  
+
   .cta-sidebar {
     max-width: 100%;
     position: static;
@@ -341,19 +341,19 @@ button {
     height: 220px;
     border-radius: 0;
   }
-  
+
   .hero-title {
     font-size: 1.5rem;
   }
-  
+
   .hero-meta {
     font-size: 0.8125rem;
   }
-  
+
   .main-content {
     padding: 0 1rem 2rem;
   }
-  
+
   .section {
     padding: 1.25rem;
   }

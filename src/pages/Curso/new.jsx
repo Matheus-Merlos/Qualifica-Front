@@ -104,7 +104,7 @@ export default function Curso() {
   if (loading) {
     return (
       <div
-        className="loading"
+        className='loading'
         style={{
           display: 'flex',
           justifyContent: 'center',
@@ -112,8 +112,7 @@ export default function Curso() {
           height: '100vh',
           fontSize: '1.2rem',
           color: '#666',
-        }}
-      >
+        }}>
         Carregando informações do curso...
       </div>
     );
@@ -122,7 +121,7 @@ export default function Curso() {
   if (error) {
     return (
       <div
-        className="error"
+        className='error'
         style={{
           padding: '2rem',
           textAlign: 'center',
@@ -131,8 +130,7 @@ export default function Curso() {
           borderRadius: '8px',
           margin: '2rem auto',
           maxWidth: '600px',
-        }}
-      >
+        }}>
         <h2>Erro ao carregar o curso</h2>
         <p>{error}</p>
         <button
@@ -145,8 +143,7 @@ export default function Curso() {
             border: 'none',
             borderRadius: '4px',
             cursor: 'pointer',
-          }}
-        >
+          }}>
           Voltar para a página anterior
         </button>
       </div>
@@ -154,16 +151,16 @@ export default function Curso() {
   }
 
   return (
-    <div className="course-detail">
+    <div className='course-detail'>
       {/* Hero Section */}
-      <div className="hero">
-        <ImageWithFallback src={course.imageUrl} alt={course.name} className="hero-image" />
-        <div className="hero-content">
-          <h1 className="hero-title">{course.name}</h1>
-          <div className="progress-bar">
-            <div className="progress-bar-fill" style={{ width: `${course.progress}%` }} />
+      <div className='hero'>
+        <ImageWithFallback src={course.imageUrl} alt={course.name} className='hero-image' />
+        <div className='hero-content'>
+          <h1 className='hero-title'>{course.name}</h1>
+          <div className='progress-bar'>
+            <div className='progress-bar-fill' style={{ width: `${course.progress}%` }} />
           </div>
-          <div className="hero-meta">
+          <div className='hero-meta'>
             <span>{course.progress}% concluído</span>
             <span>{course.totalLessons} aulas</span>
             <span>{course.totalDuration}</span>
@@ -172,22 +169,22 @@ export default function Curso() {
       </div>
 
       {/* Main Content */}
-      <div className="main-content">
+      <div className='main-content'>
         {/* Left Column - Course Content */}
-        <div className="about">
+        <div className='about'>
           {/* Description Section */}
-          <section className="section">
-            <h2 className="section-title">Descrição</h2>
+          <section className='section'>
+            <h2 className='section-title'>Descrição</h2>
             <p>{course.description}</p>
           </section>
 
           {/* Course Content Section */}
-          <section className="section">
-            <h2 className="section-title">Conteúdo do curso</h2>
+          <section className='section'>
+            <h2 className='section-title'>Conteúdo do curso</h2>
             {course.sections.map((section) => (
-              <div key={section.id} className="module">
-                <div className="module-title">{section.title}</div>
-                <div className="module-meta">
+              <div key={section.id} className='module'>
+                <div className='module-title'>{section.title}</div>
+                <div className='module-meta'>
                   {section.lessonCount} {section.lessonCount === 1 ? 'aula' : 'aulas'}
                 </div>
               </div>
@@ -195,11 +192,11 @@ export default function Curso() {
           </section>
 
           {/* Materials Section */}
-          <section className="section">
-            <h2 className="section-title">Materiais de apoio</h2>
-            <ul className="material-list">
+          <section className='section'>
+            <h2 className='section-title'>Materiais de apoio</h2>
+            <ul className='material-list'>
               {materials.map((material) => (
-                <li key={material.id} className="material-item">
+                <li key={material.id} className='material-item'>
                   {material.type === 'pdf' && '📄'}
                   {material.type === 'link' && '🔗'}
                   {material.type === 'sheet' && '📊'}
@@ -211,27 +208,27 @@ export default function Curso() {
         </div>
 
         {/* Right Column - CTA */}
-        <aside className="cta-sidebar">
-          <div className="cta-card">
-            <h3 className="section-title">Continuar onde parou</h3>
-            <button className="btn btn-primary">Continuar curso</button>
-            <button className="btn btn-outline">Reiniciar</button>
-            <p className="last-accessed">Último acesso em {course.lastAccessed}</p>
+        <aside className='cta-sidebar'>
+          <div className='cta-card'>
+            <h3 className='section-title'>Continuar onde parou</h3>
+            <button className='btn btn-primary'>Continuar curso</button>
+            <button className='btn btn-outline'>Reiniciar</button>
+            <p className='last-accessed'>Último acesso em {course.lastAccessed}</p>
           </div>
         </aside>
       </div>
 
       {/* Mobile Navigation */}
-      <div className="mobile-nav">
-        <Link to="/home" className="mobile-nav-item">
+      <div className='mobile-nav'>
+        <Link to='/home' className='mobile-nav-item'>
           <FiArrowLeft size={20} />
           <span>Voltar</span>
         </Link>
-        <button className="mobile-nav-item">
+        <button className='mobile-nav-item'>
           <FiBookOpen size={20} />
           <span>Conteúdo</span>
         </button>
-        <button className="mobile-nav-item">
+        <button className='mobile-nav-item'>
           <FiDownload size={20} />
           <span>Materiais</span>
         </button>

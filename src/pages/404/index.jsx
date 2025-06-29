@@ -50,7 +50,7 @@ export default function Route404() {
         <p>Página não encontrada</p>
         <div className='buttons-con'>
           <div className='action-link-wrap'>
-            <a href='' className='link-button' onClick={() => navigate('/home')}>
+            <a href='' className='link-button' onClick={() => navigate('/')}>
               Ir para home
             </a>
           </div>
