@@ -7,6 +7,8 @@ import Route404 from './pages/404';
 import { Provider } from 'jotai';
 import Search from './pages/Search';
 import WatchCourse from './pages/WatchCourse';
+import UserProfile from './pages/UserProfile';
+import CourseSessions from './pages/CourseSessions';
 
 function App() {
   return (
@@ -33,6 +35,8 @@ function App() {
           {/* Rota para quando o usuário apenas entra na página de assistir, sem selecionar um recurso */}
           <Route path='/course/:courseId/watch' element={<WatchCourse />} />
 
+          <Route path='/profile' element={<UserProfile />} />
+          <Route path='/cursos/:courseId/sessoes' element={<CourseSessions />} />
           <Route path='*' element={<Route404 />} />
         </Routes>
       </BrowserRouter>
