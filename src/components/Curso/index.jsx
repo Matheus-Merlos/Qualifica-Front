@@ -1,7 +1,8 @@
 import React from "react";
 import "./styles.css";
 import Header from '../Header';
-import ListaCapitulos from './ListaCapitulos.jsx'; // ajuste o caminho conforme seu projeto
+import ListaCapitulos from './ListaCapitulos.jsx';
+import { Container, Row, Col, Button, ProgressBar } from 'react-bootstrap';
 
 export default function Curso() {
   const capitulos = Array.from({ length: 21 }, (_, i) => ({
@@ -14,31 +15,32 @@ export default function Curso() {
   return (
     <>
       <Header searchable={false} />
-      
+
       <main className="course-container">
-        <div className="main-left">
+        <Container className="main-left">
           <div className="video-box">
             <img src="/fundo.jpg" alt="Computação" />
             <div className="play-bar">⏸</div>
           </div>
 
-          <div className="course-info">
+          <Container className="course-info">
             <h2>Computação</h2>
             <p>
               A computação, ou ciência da computação, é uma disciplina que estuda a teoria, o design, o desenvolvimento e a
               aplicação de computadores e sistemas computacionais.
             </p>
             <span className="progress-text" style={{ textAlign: "center" }}>50%</span>
-            <div className="progress-bar">
-              <div style={{ width: "50%" }}></div>
-            </div>
-          </div>
-        </div>
+            <ProgressBar
+              now={50}
+              className="progress-bar"
+            />
+          </Container>
+        </Container>
 
-        <div className="main-right">
-          <button type="button" className="btn-certificado">Obter Certificado</button>
+        <Container className="main-right">
+          <Button variant="success" className="w-100 mb-3 rounded btn-certificado">Obter Certificado</Button>
           <ListaCapitulos capitulos={capitulos} />
-        </div>
+        </Container>
       </main>
     </>
   );

@@ -1,10 +1,9 @@
 import React, { useState, useRef, useEffect } from 'react';
 import Logo from './Logo';
 import ProfileCard from './ProfileCard';
-
+import { Container, Row, Col, Form, Image } from 'react-bootstrap';
 
 export default function Header({ searchable = true }) {
-
   const [isProfileCardVisible, setProfileCardVisible] = useState(false);
   const profilePictureRef = useRef(null);
   const profileCardRef = useRef(null);
@@ -26,48 +25,30 @@ export default function Header({ searchable = true }) {
     };
 
     document.addEventListener('mousedown', handleClickOutside);
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
+    return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
   return (
     <>
-      <header className="top-bar" style={{ position: 'relative'}}>
-        <div className="left" style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'start',
-          height: '7vh',
-          backgroundColor: 'white',
-          padding: '1rem',
-        }}>
-          <div className="logo" style={{
-            width: '10rem',
-            fill: '#2c2c2c'
-          }}>
+      <header className="top-bar" style={{ position: 'relative' }}>
+        <Container className="left">
+          <div className="logo">
             <Logo color="#2c2c2c" />
           </div>
-          
-       {searchable && (
-            <input
-              type="text"
-              placeholder="Clique aqui para pesquisar"
-              className="search-bar-top"
-              style={{
-                flex: 1,
-                margin: '0 1rem',
-                padding: '0.6rem 1rem',
-                borderRadius: '20px',
-                border: 'none',
-                fontSize: '1rem',
-                backgroundColor: '#ccc',
-                maxWidth: '30vw'
-              }}
-            />
-          )}
-        </div>
-        <div className="right" style={{ position: 'relative' }}>
+
+          {searchable && (
+              <Container className="text-center d-flex justify-content-start align-items-start flex-column w-100 m-0 p-0">
+                <Form.Control
+                  type="text"
+                  placeholder="Clique aqui para pesquisar"
+                  className="rounded-pill"
+                  style={{ backgroundColor: '#e9ecef', maxWidth: '25rem', margin: '0 10px' }}
+                />
+              </Container>
+            )}
+        </Container>
+
+        <Container className="right">
           <ProfileCard
             isVisible={isProfileCardVisible}
             onClose={() => setProfileCardVisible(false)}
@@ -81,7 +62,7 @@ export default function Header({ searchable = true }) {
             onClick={toggleProfileCard}
             style={{ cursor: 'pointer', zIndex: 1002 }}
           />
-        </div>
+        </Container>
       </header>
 
       {isProfileCardVisible && (
@@ -102,5 +83,4 @@ export default function Header({ searchable = true }) {
       )}
     </>
   );
-};
-
+}

@@ -3,7 +3,7 @@ import CapituloCard from './CapituloCard.jsx';
 
 export default function ListaCapitulos({ capitulos }) {
   return (
-    <div className="capitulos">
+    <div className="capitulos bg-white p-3 rounded shadow-sm">
       <h3>Capítulos</h3>
       <div className="lista">
         {capitulos.map((cap, index) => (

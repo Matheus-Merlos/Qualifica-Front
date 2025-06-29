@@ -1,5 +1,6 @@
+import React from 'react';
+import { Container, Form, Button, Row, Col } from 'react-bootstrap';
 import Logo from "../Logo";
-import "./styles.css"
 
 export default function Login() {
   function showForm(type) {
@@ -16,56 +17,51 @@ export default function Login() {
   }
 
   return (
-    <div className="container">
-      <div className="logo-container">
-        <Logo color='fff'/>
-      </div>
-      <div className="form-box">
-        <div className="logo-card">
-          <Logo color='#2c2c2c'/>
+    <Container className="d-flex justify-content-center align-items-center vh-100">
+      <div className="form-box bg-light p-4 rounded shadow">
+        <Logo color='#2c2c2c' />
+        <div className="tab-buttons mb-3">
+          <Button className="tab active" onClick={() => showForm('login')}>Login</Button>
+          <Button className="tab" onClick={() => showForm('cadastro')}>Cadastro</Button>
         </div>
 
-        <div className="tab-buttons">
-          <button className="tab active" onClick={() => showForm('login')}>Login</button>
-          <button className="tab" onClick={() => showForm('cadastro')}>Cadastro</button>
-        </div>
+        <Form id="login-form" className={`form active`}>
+          <Form.Group controlId="login-email">
+            <Form.Label>Seu e-mail</Form.Label>
+            <Form.Control type="email" required />
+          </Form.Group>
 
-        <form id="login-form" className={`form active`}>
-          <label htmlFor="login-email">Seu e-mail</label>
-          <input type="email" id="login-email" required />
+          <Form.Group controlId="login-password">
+            <Form.Label>Sua senha</Form.Label>
+            <Form.Control type="password" required />
+          </Form.Group>
 
-          <label htmlFor="login-password">Sua senha</label>
-          <input type="password" id="login-password" required />
+          <Form.Group controlId="remember-me" className="mb-3">
+            <Form.Check type="checkbox" label="Lembrar meu login" />
+          </Form.Group>
 
-          <label className="checkbox">
-            <input type="checkbox" className="input-checkbox" /> Lembrar meu login
-          </label>
+          <Button type="submit" className="w-100">Entrar</Button>
+        </Form>
 
-          <button type="submit">Entrar</button>
+        <Form id="cadastro-form" className={`form`}>
+          <Form.Group controlId="cadastro-email">
+            <Form.Label>Seu e-mail</Form.Label>
+            <Form.Control type="email" required />
+          </Form.Group>
 
-          <div className="social-buttons">
-            <button className="google">
-              <img src="/google.png" alt="Google" /> Entrar com Google
-            </button>
-            <button type="button" className="apple">
-              <img src="/apple.png" alt="Apple" /> Entrar com Apple
-            </button>
-          </div>
-        </form>
+          <Form.Group controlId="cadastro-password">
+            <Form.Label>Sua senha</Form.Label>
+            <Form.Control type="password" required />
+          </Form.Group>
 
-        <form id="cadastro-form" className={`form`}>
-          <label htmlFor="cadastro-email">Seu e-mail</label>
-          <input type="email" id="cadastro-email" required />
+          <Form.Group controlId="cadastro-confirm-password">
+            <Form.Label>Confirmar senha</Form.Label>
+            <Form.Control type="password" required />
+          </Form.Group>
 
-          <label htmlFor="cadastro-password">Sua senha</label>
-          <input type="password" id="cadastro-password" required />
-
-          <label htmlFor="cadastro-confirm-password">Confirmar senha</label>
-          <input type="password" id="cadastro-confirm-password" required />
-
-          <button type="submit">Cadastrar</button>
-        </form>
+          <Button type="submit" className="w-100">Cadastrar</Button>
+        </Form>
       </div>
-    </div>
+    </Container>
   );
 }

@@ -37,7 +37,7 @@
   .right {
     display: flex;
     align-items: center;
-    justify-content: center;
+    justify-content: end;
 
     .profile-card {
       position: absolute;
@@ -191,7 +191,7 @@
       font-size: 1.2rem;
       font-weight: 700;
       border: none;
-      border-radius: 32px;
+      border-radius: 32px !important;
       padding: 1.5rem 1.1rem;
       cursor: pointer;
       margin-bottom: 1rem;
@@ -220,6 +220,7 @@
 
         .card {
           display: flex;
+          flex-direction: row;
           align-items: center;
           width: 100%;
           justify-content: space-between;
