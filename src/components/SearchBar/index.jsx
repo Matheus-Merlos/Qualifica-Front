@@ -78,9 +78,9 @@ export default function SearchBar() {
             </div>
             <hr />
             <ul className='profile-options'>
-              <li>Meus Dados</li>
-              <li>Meus Cursos</li>
-              <li>Configurações</li>
+              <li>
+                <Link to='/profile'>Meus Dados</Link>
+              </li>
               <li className='logout'>Sair</li>
             </ul>
           </div>

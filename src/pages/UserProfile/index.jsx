@@ -4,6 +4,9 @@ import { Modal, Button, Form } from 'react-bootstrap';
 import { Col, Card, Image } from 'react-bootstrap';
 import SearchBar from '../../components/SearchBar';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import { useAtom } from 'jotai';
+import { emailAtom, nameAtom } from '../../store/persistentAtoms';
+import { FiUser } from 'react-icons/fi';
 
 // Mock data
 const userData = {
@@ -41,6 +44,9 @@ const UserProfile = () => {
   });
   // Para campos dinâmicos:
   const [tagInput, setTagInput] = useState('');
+
+  const [name] = useAtom(nameAtom);
+  const [email] = useAtom(emailAtom);
 
   const renderCourseCard = (course) => (
     <Col xs={12} sm={6} md={4} lg={3} key={course.id} className='mb-4'>
@@ -111,20 +117,11 @@ const UserProfile = () => {
               textAlign: 'center',
               flexShrink: 0,
             }}>
-            {userData.avatar ? (
-              <Image src={userData.avatar} alt={userData.name} fluid roundedCircle />
-            ) : (
-              <span>
-                {userData.name
-                  .split(' ')
-                  .map((n) => n[0])
-                  .join(' ')}
-              </span>
-            )}
+            <FiUser size={45} className='profile-picture' />
           </div>
           <div>
-            <div style={{ fontWeight: 600, color: '#222', fontSize: 18 }}>{userData.name}</div>
-            <div style={{ color: '#888', fontSize: 14 }}>{userData.email}</div>
+            <div style={{ fontWeight: 600, color: '#222', fontSize: 18 }}>{name}</div>
+            <div style={{ color: '#888', fontSize: 14 }}>{email}</div>
           </div>
         </div>
         {/* Tabs */}
