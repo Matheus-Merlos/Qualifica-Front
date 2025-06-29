@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import api from '../../utils/api';
 import './styles.css';
 import { useAtom } from 'jotai';
-import { nameAtom } from '../../store/persistentAtoms';
+import { nameAtom, userIdAtom } from '../../store/persistentAtoms';
 
 export default function Home() {
   /* ­---------------- profile pop-up ---------------- */
@@ -20,6 +20,7 @@ export default function Home() {
   const searchOverlayRef = useRef(null);
 
   const [name] = useAtom(nameAtom);
+  const [userId] = useAtom(userIdAtom);
 
   const toggleCard = () => setVisible((v) => !v);
 
@@ -38,40 +39,24 @@ export default function Home() {
     return () => window.removeEventListener('click', close);
   }, []);
 
-  async function fetchCourses() {
-    try {
-      const response = await api.get('/course', {
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
-      const allCourses = response.data;
-
-      // Separar cursos em continue e novos
-      const [continueCourses, newCourses] = allCourses.reduce(
-        (acc, course) => {
-          if (course.progress > 0) {
-            acc[0].push(course);
-          } else {
-            acc[1].push(course);
-          }
-          return acc;
-        },
-        [[], []]
-      );
-
-      setCourses(allCourses);
-      setContinueCourses(continueCourses);
-      setNewCourses(newCourses);
-      setError('');
-    } catch (err) {
-      setError('Erro ao carregar cursos');
-    }
-  }
-
   useEffect(() => {
+    async function fetchCourses() {
+      try {
+        const searchResponse = await api.get('/course');
+        const subscribedResponse = await api.get(`/subscription/${userId}`);
+        const allCourses = searchResponse.data;
+        const subscribedCourses = subscribedResponse.data;
+
+        setCourses(allCourses);
+        setContinueCourses(subscribedCourses);
+        setNewCourses(allCourses);
+        setError('');
+      } catch {
+        setError('Erro ao carregar cursos');
+      }
+    }
     fetchCourses();
-  }, []);
+  }, [userId]);
 
   const handleSearch = async (e) => {
     const query = e.target.value.trim();
