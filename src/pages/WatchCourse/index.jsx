@@ -33,6 +33,52 @@ export default function WatchCourse() {
   const [commentContent, setCommentContent] = useState('');
   const [comments, setComments] = useState([]);
 
+  const [currentProgress, setCurrentProgress] = useState(0);
+
+  useEffect(() => {
+    async function fetchCurrentProgress() {
+      try {
+        const response = await api.get(
+          `/course/${courseId}/progress/${userId}/${sectionResourceId}`
+        );
+        setCurrentProgress(response.data.timeWatched);
+      } catch {
+        console.error('Erro ao salvar progresso do vídeo atual');
+      }
+    }
+
+    if (resourceType === 'lesson' && courseId && userId && sectionResourceId) {
+      fetchCurrentProgress();
+    }
+  }, [courseId, userId, sectionResourceId]);
+
+  async function saveProgress({ playedSeconds }) {
+    if (Math.floor(playedSeconds) % 5 !== 0) {
+      return;
+    }
+
+    const hours = Math.floor(playedSeconds / 3600);
+    const minutes = Math.floor((playedSeconds % 3600) / 60);
+    const seconds = Math.floor(playedSeconds % 60);
+
+    const pad = (num) => String(num).padStart(2, '0');
+
+    const time = `${pad(hours)}:${pad(minutes)}:${pad(seconds)}`;
+
+    console.log(time);
+
+    try {
+      await api.patch(`/course/${courseId}/progress/${userId}/${sectionResourceId}`, {
+        time,
+      });
+      setCommentContent('');
+      fetchComments();
+    } catch {
+      console.error('Erro ao salvar progresso do vídeo atual');
+    }
+  }
+
+  //Função de criar comentários
   async function handleCommentCreation() {
     if (commentContent.trim() === '') {
       return;
@@ -46,11 +92,11 @@ export default function WatchCourse() {
     }
   }
 
+  //Função de pegar os comentários da aula
   async function fetchComments() {
     try {
       const response = await api.get(`/comment/${sectionResourceId}/comment`);
       setComments(response.data);
-      console.log(response.data);
     } catch (error) {
       console.error('Erro ao buscar progresso do curso:', error);
     }
@@ -115,7 +161,6 @@ export default function WatchCourse() {
       material: 'sectionMaterialId',
     };
 
-    console.log(resource.content);
     const type = resource.type;
     const sectionId = resource.content[columnNames[resource.type]];
     const id = resource.content.id;
@@ -203,11 +248,14 @@ export default function WatchCourse() {
           {loading ? (
             <div>Carregando conteúdo...</div>
           ) : (
-            <ResourceViewer resource={currentResource} />
+            <ResourceViewer
+              resource={currentResource}
+              onProgress={currentResource.type === 'lesson' ? saveProgress : () => {}}
+              startTime={currentResource.type === 'lesson' ? currentProgress : 0}
+            />
           )}
 
           {/* Seção de Comentários */}
-
           {resourceType === 'lesson' && (
             <div className='comments-section'>
               <h3>Comentários</h3>
