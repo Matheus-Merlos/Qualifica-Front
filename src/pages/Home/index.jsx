@@ -39,23 +39,24 @@ export default function Home() {
     return () => window.removeEventListener('click', close);
   }, []);
 
-  useEffect(() => {
-    async function fetchCourses() {
-      try {
-        const searchResponse = await api.get('/course');
-        const subscribedResponse = await api.get(`/subscription/${userId}`);
-        const allCourses = searchResponse.data;
-        const subscribedCourses = subscribedResponse.data;
+  async function fetchCourses() {
+    try {
+      const searchResponse = await api.get('/course');
+      const subscribedResponse = await api.get(`/subscription/${userId}`);
+      const allCourses = searchResponse.data;
+      const subscribedCourses = subscribedResponse.data;
 
-        setCourses(allCourses);
-        setContinueCourses(subscribedCourses);
-        setNewCourses(allCourses);
-        setError('');
-      } catch {
-        setError('Erro ao carregar cursos');
-      }
+      setCourses(allCourses);
+      setContinueCourses(subscribedCourses);
+      setNewCourses(allCourses);
+      setError('');
+    } catch (error) {
+      setError(`Erro ao carregar cursos: ${error.response}`);
     }
-    fetchCourses();
+  }
+
+  useEffect(() => {
+    fetchCourses(userId);
   }, [userId]);
 
   const handleSearch = async (e) => {
