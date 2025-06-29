@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router-dom';
 export default function Route404() {
   const navigate = useNavigate();
   return (
-    <>
+    <main id='background-404'>
       <svg
         width='380px'
         height='500px'
@@ -56,6 +56,6 @@ export default function Route404() {
           </div>
         </div>
       </div>
-    </>
+    </main>
   );
 }

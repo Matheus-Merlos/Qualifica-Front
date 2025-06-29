@@ -1,0 +1,16 @@
+.search-container {
+  width: 100vw;
+}
+
+.courses {
+  display: flex;
+  align-items: center;
+}
+
+.course-card {
+  width: 90vw;
+  padding: 1.25%;
+  background-color: white;
+  display: grid;
+  grid-template-columns: 2fr 10fr;
+}

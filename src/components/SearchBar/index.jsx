@@ -3,6 +3,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { searchParamAtom } from '../../store/atom';
 import { nameAtom } from '../../store/persistentAtoms';
 import { useNavigate } from 'react-router-dom';
+import './styles.css';
 
 export default function SearchBar() {
   const [searchParam, setSearchParam] = useAtom(searchParamAtom);

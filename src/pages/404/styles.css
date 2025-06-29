@@ -1,5 +1,6 @@
-body {
+#background-404 {
   background-color: #2F3242;
+  height: 100vh;
 }
 svg {
   position: absolute;
