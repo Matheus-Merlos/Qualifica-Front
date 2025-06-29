@@ -17,7 +17,6 @@ function App() {
 
           {/* nova rota → tela Home */}
           <Route path='/' element={<Home />} />
-          <Route path='/curso' element={<Curso />} />
           <Route path='/course/:id' element={<Curso />} />
 
           <Route path='/search' element={<Search />} />
