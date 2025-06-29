@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import {
   FiArrowLeft,
   FiBookOpen,
@@ -66,6 +66,8 @@ export default function Curso() {
     totalDuration: '0h 00min',
     lastAccessed: new Date().toLocaleDateString('pt-BR'),
   });
+
+  const navigate = useNavigate();
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -272,15 +274,19 @@ export default function Curso() {
         <aside className='cta-sidebar'>
           <div className='cta-card'>
             <h3 className='section-title'>Continuar onde parou</h3>
-            <button className='btn btn-primary'>Continuar curso</button>
-            <button className='btn btn-outline'>Reiniciar</button>
+            <button className='btn btn-primary' onClick={() => navigate(`/course/${id}/watch`)}>
+              Continuar curso
+            </button>
+            <button className='btn btn-outline' onClick={() => alert('CRIA UMA CONTA NOVA')}>
+              Reiniciar
+            </button>
           </div>
         </aside>
       </div>
 
       {/* Mobile Navigation */}
       <div className='mobile-nav'>
-        <Link to='/home' className='mobile-nav-item'>
+        <Link to='/' className='mobile-nav-item'>
           <FiArrowLeft size={22} />
           <span>Voltar</span>
         </Link>

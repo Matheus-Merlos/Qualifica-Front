@@ -1,0 +1,38 @@
+:root {
+  --primary-500: #6366F1;
+  --neutral-600: #4B5563;
+  --neutral-100: #F3F4F6;
+}
+
+/* Placeholder para quando nenhum recurso estiver selecionado */
+.resource-placeholder {
+  text-align: center;
+  padding: 4rem;
+  background-color: #fff;
+  border-radius: 8px;
+  color: var(--neutral-600);
+}
+
+/* Contêiner principal do conteúdo */
+.resource-content h3 {
+  font-size: 1.5rem;
+  margin-bottom: 0.5rem;
+}
+
+/* Wrapper para o player de vídeo */
+.video-player-wrapper-final {
+  width: 100%;
+  max-width: 900px;
+  margin: 0 auto 1rem;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  border-radius: 8px;
+  overflow: hidden;
+  background-color: black;
+}
+
+/* Responsividade */
+@media (max-width: 1024px) {
+  .video-player-wrapper-final {
+    max-width: 100%;
+  }
+}
