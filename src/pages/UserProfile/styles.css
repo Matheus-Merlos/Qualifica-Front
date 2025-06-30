@@ -153,3 +153,7 @@
   color: #c00;
   margin-left: 4px;
 }
+
+.danger-button {
+  max-width: 180px;
+}
