@@ -8,7 +8,7 @@ import { Provider } from 'jotai';
 import Search from './pages/Search';
 import WatchCourse from './pages/WatchCourse';
 import UserProfile from './pages/UserProfile';
-import CourseSessions from './pages/CourseSessions';
+import CourseSessions from './pages/CourseSections';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 function App() {
