@@ -45,7 +45,8 @@ export default function UserProfile() {
 
   /* ESTADOS PARA CRIAÇÃO DE MATERIAL (CUSTOMIZÁVEL) */
   const [materialName, setMaterialName] = useState('');
-  const [materialFile, setMaterialFile] = useState(null);
+  const [materialUrl, setMaterialUrl] = useState('');
+  const [materialDescription, setMaterialDescription] = useState('');
 
   /* ESTADOS PARA CRIAÇÃO DE AULA (CUSTOMIZÁVEL) */
   const [lessonName, setLessonName] = useState('');
@@ -75,6 +76,14 @@ export default function UserProfile() {
       fetchUserResources();
     }
   }, [userId]);
+
+  function handleNewTag(event) {
+    if ((event.key === 'Enter' || event.key === ' ') && tagInput) {
+      event.preventDefault();
+      setTags([...tags, tagInput.trim()]);
+      setTagInput('');
+    }
+  }
 
   async function handleCreateCourse() {
     if (!thumbnailFile || !courseName) {
@@ -210,19 +219,32 @@ export default function UserProfile() {
     }
   }
 
-  // --- NOVAS FUNÇÕES DE CRIAÇÃO (PLACEHOLDERS) ---
+  /*
+  FUNÇÕES PARA MATERIAL
+  */
+  async function handleCreateMaterial() {
+    if (!materialName || !materialUrl) return;
 
-  async function handleCreateMaterial() {}
+    const createMaterialBody = {
+      name: materialName,
+      url: materialUrl,
+      description: materialDescription,
+    };
 
-  async function handleCreateLesson() {}
+    try {
+      await api.post(`/material/${userId}`, createMaterialBody);
 
-  function handleNewTag(event) {
-    if ((event.key === 'Enter' || event.key === ' ') && tagInput) {
-      event.preventDefault();
-      setTags([...tags, tagInput.trim()]);
-      setTagInput('');
+      setMaterialName();
+      setMaterialDescription('');
+      setMaterialUrl('');
+      setShowMaterialModal(false);
+      fetchUserResources();
+    } catch (error) {
+      alert(`erro ao criar material: ${error.response.data}`);
     }
   }
+
+  async function handleCreateLesson() {}
 
   const renderLoadingButton = () => (
     <>
@@ -584,10 +606,23 @@ export default function UserProfile() {
               />
             </Form.Group>
             <Form.Group className='mb-3'>
-              <Form.Label>Arquivo</Form.Label>
-              <Form.Control type='file' onChange={(e) => setMaterialFile(e.target.files[0])} />
+              <Form.Label>URL do Material</Form.Label>
+              <Form.Control
+                type='text'
+                value={materialUrl}
+                onChange={(e) => setMaterialUrl(e.target.value)}
+                placeholder='Algum link de youtube, pdf, slides, etc.'
+              />
             </Form.Group>
-            {/* **ADICIONE AQUI OUTROS CAMPOS PARA O MATERIAL** */}
+            <Form.Group className='mb-3'>
+              <Form.Label>Descrição</Form.Label>
+              <Form.Control
+                as='textarea'
+                value={materialDescription}
+                onChange={(e) => setMaterialDescription(e.target.value)}
+                placeholder='Descrição do material'
+              />
+            </Form.Group>
           </Form>
         </Modal.Body>
         <Modal.Footer>
@@ -598,7 +633,7 @@ export default function UserProfile() {
             Cancelar
           </Button>
           <Button variant='primary' onClick={handleCreateMaterial} disabled={isLoading}>
-            {isLoading ? renderLoadingButton('Enviando') : 'Enviar Material'}
+            {isLoading ? renderLoadingButton('Enviando') : 'Criar Material'}
           </Button>
         </Modal.Footer>
       </Modal>
