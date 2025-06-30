@@ -36,3 +36,41 @@
     max-width: 100%;
   }
 }
+
+/* Em seu arquivo styles.css */
+
+.exam-container {
+  padding: 2rem;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+}
+
+.bg-success-soft {
+  background-color: rgba(40, 167, 69, 0.1);
+  border: 1px solid rgba(40, 167, 69, 0.2);
+}
+
+.bg-danger-soft {
+  background-color: rgba(220, 53, 69, 0.1);
+  border: 1px solid rgba(220, 53, 69, 0.2);
+}
+
+.exam-alternative.correct-answer {
+  background-color: #d1e7dd; /* Verde claro do Bootstrap */
+  border-left: 5px solid #198754; /* Verde escuro */
+}
+
+.exam-alternative.incorrect-answer {
+  background-color: #f8d7da; /* Vermelho claro do Bootstrap */
+  border-left: 5px solid #dc3545; /* Vermelho escuro */
+  color: #58151c;
+}
+
+.bg-success-soft {
+  background-color: rgba(40, 167, 69, 0.1);
+}
+
+.bg-danger-soft {
+  background-color: rgba(220, 53, 69, 0.1);
+}

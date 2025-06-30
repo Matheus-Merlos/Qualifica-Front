@@ -166,6 +166,30 @@ export default function WatchCourse() {
     navigate(`/course/${courseId}/watch/${type}/${id}/${sectionId}`);
   }
 
+  async function handleExamSubmit(answers) {
+    const formattedAnswers = Object.entries(answers).map(([questionId, alternativeId]) => ({
+      questionId: Number(questionId),
+      alternativeId: Number(alternativeId),
+    }));
+
+    try {
+      for (const answer of formattedAnswers) {
+        try {
+          await api.delete(`exam/${resourceId}/answers/${userId}/${answer.questionId}`);
+        } catch {}
+        await api.post(`exam/${resourceId}/answers/${userId}/${answer.questionId}`, {
+          alternative: answer.alternativeId,
+        });
+      }
+
+      const response = await api.get(`/exam/${resourceId}/answers/${userId}`);
+
+      return response.data;
+    } catch (error) {
+      console.error('Erro no processo de submissão e busca de resultados:', error);
+    }
+  }
+
   const getResourceIcon = (type) => {
     switch (type) {
       case 'lesson':
@@ -248,8 +272,9 @@ export default function WatchCourse() {
           ) : currentResource ? (
             <ResourceViewer
               resource={currentResource}
-              onProgress={currentResource.type === 'lesson' ? saveProgress : () => {}}
-              startTime={currentResource.type === 'lesson' ? currentProgress : 0}
+              onProgress={currentResource?.type === 'lesson' ? saveProgress : undefined}
+              startTime={currentResource?.type === 'lesson' ? currentProgress : 0}
+              onExamSubmit={currentResource?.type === 'exam' ? handleExamSubmit : undefined}
             />
           ) : (
             <div>Nenhum conteúdo encontrado.</div>
