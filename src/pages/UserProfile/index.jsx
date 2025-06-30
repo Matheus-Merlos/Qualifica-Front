@@ -50,6 +50,7 @@ export default function UserProfile() {
 
   /* ESTADOS PARA CRIAÇÃO DE AULA (CUSTOMIZÁVEL) */
   const [lessonName, setLessonName] = useState('');
+  const [lessonFile, setLessonFile] = useState('');
   const [lessonDescription, setLessonDescription] = useState('');
 
   async function fetchUserResources() {
@@ -244,7 +245,82 @@ export default function UserProfile() {
     }
   }
 
-  async function handleCreateLesson() {}
+  /*
+  FUNÇÕES PARA AULA
+  */
+  function getVideoDuration(file) {
+    return new Promise((resolve, reject) => {
+      const video = document.createElement('video');
+      video.preload = 'metadata';
+
+      video.onloadedmetadata = () => {
+        URL.revokeObjectURL(video.src);
+        const durationInSeconds = video.duration;
+
+        const formatTime = (totalSeconds) => {
+          const hours = Math.floor(totalSeconds / 3600);
+          const minutes = Math.floor((totalSeconds % 3600) / 60);
+          const seconds = Math.floor(totalSeconds % 60);
+          const pad = (num) => String(num).padStart(2, '0');
+          return `${pad(hours)}:${pad(minutes)}:${pad(seconds)}`;
+        };
+
+        resolve(formatTime(durationInSeconds));
+      };
+
+      video.onerror = () => {
+        reject(new Error('Erro ao carregar metadados do vídeo'));
+      };
+
+      video.src = URL.createObjectURL(file);
+    });
+  }
+
+  async function handleCreateLesson() {
+    if (!lessonFile || !lessonName) {
+      alert('Por favor, preencha o nome da aula e selecione um vídeo.');
+      return;
+    }
+    setIsLoading(true);
+
+    const fileExtension = lessonFile.name.split('.').pop();
+    const uniqueFileName = `${uuidv4()}.${fileExtension}`;
+    const fileName = encodeURIComponent(uniqueFileName);
+    const fileType = encodeURIComponent(lessonFile.type);
+
+    try {
+      const duration = await getVideoDuration(lessonFile);
+
+      const awsEndpointResponse = await api.get(
+        `/aws/lesson-bucket/presigned-url?fileName=${fileName}&fileType=${fileType}`
+      );
+      const { url: awsUploadURL } = awsEndpointResponse.data;
+
+      await axios.put(awsUploadURL, lessonFile, {
+        headers: { 'Content-Type': lessonFile.type },
+      });
+
+      const fileUrl = `https://qualifica-mais-lesson-bucket.s3.us-east-1.amazonaws.com/${fileName}`;
+
+      const createLessonBody = {
+        name: lessonName,
+        url: fileUrl,
+        duration,
+        description: lessonDescription,
+      };
+
+      await api.post(`/lesson/${userId}`, createLessonBody);
+      setLessonFile(null);
+      setLessonName('');
+      setLessonDescription('');
+      setShowLessonModal(false);
+      fetchUserResources();
+    } catch (error) {
+      alert(`Erro ao fazer upload: ${error.message}`);
+    } finally {
+      setIsLoading(false);
+    }
+  }
 
   const renderLoadingButton = () => (
     <>
@@ -655,6 +731,14 @@ export default function UserProfile() {
               />
             </Form.Group>
             <Form.Group className='mb-3'>
+              <Form.Label>Arquivo</Form.Label>
+              <Form.Control
+                type='file'
+                accept='video/*'
+                onChange={(e) => setLessonFile(e.target.files[0])}
+              />
+            </Form.Group>
+            <Form.Group className='mb-3'>
               <Form.Label>Descrição</Form.Label>
               <Form.Control
                 as='textarea'
@@ -663,7 +747,6 @@ export default function UserProfile() {
                 placeholder='Descrição da aula'
               />
             </Form.Group>
-            {/* **ADICIONE AQUI OUTROS CAMPOS PARA A AULA (Ex: URL do vídeo, etc)** */}
           </Form>
         </Modal.Body>
         <Modal.Footer>
