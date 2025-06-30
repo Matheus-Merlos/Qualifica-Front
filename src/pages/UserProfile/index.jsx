@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Modal, Button, Form } from 'react-bootstrap';
+import { Modal, Button, Form, Spinner } from 'react-bootstrap';
 import { Col, Card, Image } from 'react-bootstrap';
 import SearchBar from '../../components/SearchBar';
 import 'bootstrap/dist/css/bootstrap.min.css';
@@ -30,22 +30,23 @@ export default function UserProfile() {
   const [activeTab, setActiveTab] = useState('cursos');
   const navigate = useNavigate();
   const [showModal, setShowModal] = useState(false);
-  // Para campos dinâmicos:
-  const [tagInput, setTagInput] = useState('');
 
   const [userId] = useAtom(userIdAtom);
   const [name] = useAtom(nameAtom);
   const [email] = useAtom(emailAtom);
 
+  const [isLoading, setIsLoading] = useState(false);
+
   const [courseName, setCourseName] = useState('');
   const [tags, setTags] = useState([]);
+  const [tagInput, setTagInput] = useState('');
   const [thumbnailFile, setThumbnailFile] = useState(null);
   const [description, setDescription] = useState('');
 
   async function handleCreateCourse() {
-    console.log('oi 1');
     if (!thumbnailFile) return;
-    console.log('oi 2');
+
+    setIsLoading(true);
 
     const fileExtension = thumbnailFile.name.split('.').pop();
     const uniqueId = uuidv4();
@@ -76,13 +77,16 @@ export default function UserProfile() {
       };
 
       await api.post(`/course/${userId}`, createCourseBody);
+      setShowModal(false);
     } catch (error) {
       alert(`Erro ao fazer upload: ${error.message}`);
+    } finally {
+      setIsLoading(false);
     }
   }
 
   function handleNewTag(event) {
-    if (event.key === 'Enter' && tagInput) {
+    if ((event.key === 'Enter' || event.key === 'Space') && tagInput) {
       event.preventDefault();
       setTags([...tags, tagInput]);
       setTagInput('');
@@ -387,11 +391,27 @@ export default function UserProfile() {
                   </Form>
                 </Modal.Body>
                 <Modal.Footer>
-                  <Button variant='secondary' onClick={() => setShowModal(false)}>
+                  <Button
+                    variant='secondary'
+                    onClick={() => setShowModal(false)}
+                    disabled={isLoading}>
                     Cancelar
                   </Button>
-                  <Button variant='primary' onClick={handleCreateCourse}>
-                    Salvar
+                  <Button variant='primary' onClick={handleCreateCourse} disabled={isLoading}>
+                    {isLoading ? (
+                      <>
+                        <Spinner
+                          as='span'
+                          animation='border'
+                          size='sm'
+                          role='status'
+                          aria-hidden='true'
+                        />{' '}
+                        Carregando...
+                      </>
+                    ) : (
+                      'Enviar'
+                    )}
                   </Button>
                 </Modal.Footer>
               </Modal>
