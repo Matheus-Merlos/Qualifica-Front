@@ -53,6 +53,9 @@ export default function UserProfile() {
   const [lessonFile, setLessonFile] = useState('');
   const [lessonDescription, setLessonDescription] = useState('');
 
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [itemToDelete, setItemToDelete] = useState(null); // Pode ser um curso, exame, etc.
+
   async function fetchUserResources() {
     try {
       // Usando Promise.all para carregar recursos em paralelo
@@ -122,6 +125,51 @@ export default function UserProfile() {
       fetchUserResources(); // Recarrega TODOS os recursos para manter a UI sincronizada
     } catch (error) {
       alert(`Erro ao fazer upload: ${error.message}`);
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
+  // Executa a exclusão após a confirmação no modal
+  // Objeto para traduzir os tipos para nomes amigáveis no modal
+  const resourceTypeNames = {
+    course: 'Curso',
+    exam: 'Exame',
+    material: 'Material',
+    lesson: 'Aula',
+  };
+
+  // Abre o modal de exclusão para qualquer tipo de item
+  function handleOpenDeleteModal(item, type) {
+    setItemToDelete({ ...item, type: type, typeName: resourceTypeNames[type] });
+    setShowDeleteModal(true);
+  }
+
+  // Fecha o modal e limpa o estado genérico
+  function handleCloseDeleteModal() {
+    setShowDeleteModal(false);
+    setItemToDelete(null);
+  }
+
+  // Executa a exclusão para qualquer tipo de item
+  async function executeDelete() {
+    if (!itemToDelete) return;
+
+    setIsLoading(true);
+    try {
+      if (itemToDelete.type === 'material') {
+        await api.delete(`/${itemToDelete.type}/${itemToDelete.id}`);
+      } else {
+        await api.delete(`/${itemToDelete.type}/${userId}/${itemToDelete.id}`);
+      }
+
+      handleCloseDeleteModal();
+      fetchUserResources();
+    } catch (error) {
+      console.error(`Erro ao deletar ${itemToDelete.typeName}:`, error);
+      alert(
+        `Não foi possível deletar o item. Erro: ${error.response?.data?.message || error.message}`
+      );
     } finally {
       setIsLoading(false);
     }
@@ -374,27 +422,32 @@ export default function UserProfile() {
                 </Button>
               </div>
               <div className='user-profile-courses-grid'>
-                {userCourses.length > 0 ? (
-                  userCourses.map((course) => (
-                    <div key={course.id} className='user-profile-course-card'>
-                      <div className='user-profile-course-card-content'>
-                        <div className='user-profile-course-card-title'>{course.name}</div>
-                        <div className='user-profile-course-card-description'>
-                          {course.description?.length > 200
-                            ? `${course.description.slice(0, 200)}...`
-                            : course.description}
-                        </div>
+                {userCourses.map((course) => (
+                  <div key={course.id} className='user-profile-course-card'>
+                    <div className='user-profile-course-card-content'>
+                      <div className='user-profile-course-card-title'>{course.name}</div>
+                      <div className='user-profile-course-card-description'>
+                        {course.description?.length > 200
+                          ? `${course.description.slice(0, 200)}...`
+                          : course.description}
                       </div>
-                      <button
-                        className='btn btn-outline-secondary btn-sm mt-2'
-                        onClick={() => navigate(`/cursos/${course.id}/sessoes`)}>
-                        Gerenciar Sessões
-                      </button>
                     </div>
-                  ))
-                ) : (
-                  <div className='text-muted'>Nenhum curso encontrado.</div>
-                )}
+                    <div className='d-flex justify-content-end gap-2 mt-2'>
+                      <Button
+                        variant='outline-secondary'
+                        size='sm'
+                        onClick={() => navigate(`/cursos/${course.id}/sessoes`)}>
+                        Gerenciar
+                      </Button>
+                      <Button
+                        variant='outline-danger'
+                        size='sm'
+                        onClick={() => handleOpenDeleteModal(course, 'course')}>
+                        Deletar
+                      </Button>
+                    </div>
+                  </div>
+                ))}
               </div>
             </>
           )}
@@ -411,21 +464,21 @@ export default function UserProfile() {
                 </Button>
               </div>
               <div className='user-profile-courses-grid'>
-                {userExams.length > 0 ? (
-                  userExams.map((exam) => (
-                    <div key={exam.id} className='user-profile-course-card'>
-                      <div className='user-profile-course-card-content'>
-                        <div className='user-profile-course-card-title'>{exam.name}</div>
-                        <div className='user-profile-course-card-description'>
-                          {exam.description}
-                        </div>
-                      </div>
-                      {/* Adicione botões de ação se necessário */}
+                {userExams.map((exam) => (
+                  <div key={exam.id} className='user-profile-course-card'>
+                    <div className='user-profile-course-card-content'>
+                      <div className='user-profile-course-card-title'>{exam.name}</div>
                     </div>
-                  ))
-                ) : (
-                  <div className='text-muted'>Nenhum exame encontrado.</div>
-                )}
+                    <div className='d-flex justify-content-end gap-2 mt-2'>
+                      <Button
+                        variant='outline-danger'
+                        size='sm'
+                        onClick={() => handleOpenDeleteModal(exam, 'exam')}>
+                        Deletar
+                      </Button>
+                    </div>
+                  </div>
+                ))}
               </div>
             </>
           )}
@@ -442,18 +495,21 @@ export default function UserProfile() {
                 </Button>
               </div>
               <div className='user-profile-courses-grid'>
-                {userMaterials.length > 0 ? (
-                  userMaterials.map((material) => (
-                    <div key={material.id} className='user-profile-course-card'>
-                      <div className='user-profile-course-card-content'>
-                        <div className='user-profile-course-card-title'>{material.name}</div>
-                        {/* Exiba mais detalhes se houver */}
-                      </div>
+                {userMaterials.map((material) => (
+                  <div key={material.id} className='user-profile-course-card'>
+                    <div className='user-profile-course-card-content'>
+                      <div className='user-profile-course-card-title'>{material.name}</div>
                     </div>
-                  ))
-                ) : (
-                  <div className='text-muted'>Nenhum material encontrado.</div>
-                )}
+                    <div className='d-flex justify-content-end gap-2 mt-2'>
+                      <Button
+                        variant='outline-danger'
+                        size='sm'
+                        onClick={() => handleOpenDeleteModal(material, 'material')}>
+                        Deletar
+                      </Button>
+                    </div>
+                  </div>
+                ))}
               </div>
             </>
           )}
@@ -470,20 +526,21 @@ export default function UserProfile() {
                 </Button>
               </div>
               <div className='user-profile-courses-grid'>
-                {userLessons.length > 0 ? (
-                  userLessons.map((lesson) => (
-                    <div key={lesson.id} className='user-profile-course-card'>
-                      <div className='user-profile-course-card-content'>
-                        <div className='user-profile-course-card-title'>{lesson.name}</div>
-                        <div className='user-profile-course-card-description'>
-                          {lesson.description}
-                        </div>
-                      </div>
+                {userLessons.map((lesson) => (
+                  <div key={lesson.id} className='user-profile-course-card'>
+                    <div className='user-profile-course-card-content'>
+                      <div className='user-profile-course-card-title'>{lesson.name}</div>
                     </div>
-                  ))
-                ) : (
-                  <div className='text-muted'>Nenhuma aula encontrada.</div>
-                )}
+                    <div className='d-flex justify-content-end gap-2 mt-2'>
+                      <Button
+                        variant='outline-danger'
+                        size='sm'
+                        onClick={() => handleOpenDeleteModal(lesson, 'lesson')}>
+                        Deletar
+                      </Button>
+                    </div>
+                  </div>
+                ))}
               </div>
             </>
           )}
@@ -753,6 +810,34 @@ export default function UserProfile() {
           </Button>
           <Button variant='primary' onClick={handleCreateLesson} disabled={isLoading}>
             {isLoading ? renderLoadingButton('Criando') : 'Criar Aula'}
+          </Button>
+        </Modal.Footer>
+      </Modal>
+
+      {/* Modal de Confirmação para Deletar Curso */}
+      <Modal show={showDeleteModal} onHide={handleCloseDeleteModal} centered>
+        <Modal.Header closeButton>
+          <Modal.Title>Confirmar Exclusão de {itemToDelete?.typeName}</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <p>
+            Você tem certeza que deseja excluir permanentemente o item
+            <strong> "{itemToDelete?.name}"</strong>?
+          </p>
+          <p className='text-danger'>Esta ação é irreversível.</p>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant='secondary' onClick={handleCloseDeleteModal} disabled={isLoading}>
+            Cancelar
+          </Button>
+          <Button variant='danger' onClick={executeDelete} disabled={isLoading}>
+            {isLoading ? (
+              <>
+                <Spinner as='span' animation='border' size='sm' /> Excluindo...
+              </>
+            ) : (
+              'Confirmar Exclusão'
+            )}
           </Button>
         </Modal.Footer>
       </Modal>
