@@ -30,6 +30,8 @@ const CourseSessions = () => {
   const [newResourceType, setNewResourceType] = useState('lesson');
   const [newResourceId, setNewResourceId] = useState('');
 
+  const [sectionsId, setSectionsId] = useState([]);
+
   useEffect(() => {
     if (!userId || !courseId) return;
 
@@ -50,19 +52,20 @@ const CourseSessions = () => {
         setUserLessons(lessonsRes.data);
         setUserExams(examsRes.data);
 
-        // *** AQUI ESTÁ A MUDANÇA PRINCIPAL ***
-        // Transforma a estrutura recebida da API para o formato do nosso formulário
         if (fetchedCourse.sections && fetchedCourse.sections.length > 0) {
           const initialFormState = fetchedCourse.sections.map((session) => ({
-            formId: `session-${session.id}`, // ID estável para o formulário
+            formId: `session-${session.id}`,
             name: session.name,
             resources: session.resources.map((resource) => ({
-              formId: `resource-${session.id}-${resource.content.id}-${Math.random()}`, // ID único
+              formId: `resource-${session.id}-${resource.content.id}-${Math.random()}`,
               type: resource.type,
-              resourceId: resource.content.id, // Extrai o ID de dentro do objeto 'content'
+              resourceId: resource.content.id,
             })),
           }));
           setSessionsForm(initialFormState);
+
+          const initialIds = fetchedCourse.sections.map((session) => session.id);
+          setSectionsId(initialIds);
         }
       } catch (err) {
         setError('Falha ao carregar os dados. Por favor, tente novamente.');
@@ -75,7 +78,6 @@ const CourseSessions = () => {
     fetchInitialData();
   }, [courseId, userId]);
 
-  // --- FUNÇÕES DE MANIPULAÇÃO DO MODAL ---
   const handleOpenResourceModal = (sessionIndex) => {
     setActiveSessionIndex(sessionIndex);
     setNewResourceType('lesson');
@@ -157,6 +159,9 @@ const CourseSessions = () => {
 
     try {
       let order = 1;
+      for (const sectionId of sectionsId) {
+        await api.delete(`/course/${courseId}/section/${sectionId}`);
+      }
       for (const [key, value] of Object.entries(payload)) {
         const createSectionBody = {
           name: key,
@@ -165,6 +170,7 @@ const CourseSessions = () => {
         };
 
         await api.post(`/course/${courseId}/section`, createSectionBody);
+        order++;
       }
 
       alert('Curso atualizado com sucesso.');
