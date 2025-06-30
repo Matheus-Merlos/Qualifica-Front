@@ -5,15 +5,11 @@ import { Col, Card, Image } from 'react-bootstrap';
 import SearchBar from '../../components/SearchBar';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { useAtom } from 'jotai';
-import { emailAtom, nameAtom } from '../../store/persistentAtoms';
+import { emailAtom, nameAtom, userIdAtom } from '../../store/persistentAtoms';
 import { FiUser } from 'react-icons/fi';
-
-// Mock data
-const userData = {
-  name: 'Maria Fernanda',
-  email: 'maria@email.com',
-  avatar: '/path-to-avatar.jpg', // Replace with actual path or URL
-};
+import api from '../../utils/api';
+import axios from 'axios';
+import { v4 as uuidv4 } from 'uuid';
 
 const courses = [
   { id: 1, name: 'JS Fundamentals', description: 'Curso de JavaScript básico.' },
@@ -30,23 +26,68 @@ const TabPanel = ({ children, activeTab, index }) => (
   </div>
 );
 
-const UserProfile = () => {
+export default function UserProfile() {
   const [activeTab, setActiveTab] = useState('cursos');
   const navigate = useNavigate();
   const [showModal, setShowModal] = useState(false);
-  const [newCourse, setNewCourse] = useState({
-    name: '',
-    userId: '',
-    description: '',
-    tags: [],
-    image: null,
-    certificate: null,
-  });
   // Para campos dinâmicos:
   const [tagInput, setTagInput] = useState('');
 
+  const [userId] = useAtom(userIdAtom);
   const [name] = useAtom(nameAtom);
   const [email] = useAtom(emailAtom);
+
+  const [courseName, setCourseName] = useState('');
+  const [tags, setTags] = useState([]);
+  const [thumbnailFile, setThumbnailFile] = useState(null);
+  const [description, setDescription] = useState('');
+
+  async function handleCreateCourse() {
+    console.log('oi 1');
+    if (!thumbnailFile) return;
+    console.log('oi 2');
+
+    const fileExtension = thumbnailFile.name.split('.').pop();
+    const uniqueId = uuidv4();
+    const uniqueFileName = `${uniqueId}.${fileExtension}`;
+
+    const fileName = encodeURIComponent(uniqueFileName);
+    const fileType = encodeURIComponent(thumbnailFile.type);
+
+    try {
+      //Pega URL assinada
+      const awsEndpointResponse = await api.get(
+        `/aws/presigned-url?fileName=${fileName}&fileType=${fileType}`
+      );
+
+      const { url: awsUploadURL } = awsEndpointResponse.data;
+
+      await axios.put(awsUploadURL, thumbnailFile, {
+        headers: { 'Content-Type': thumbnailFile.type },
+      });
+
+      const fileUrl = `https://qualifica-mais-thumbnail-bucket.s3.us-east-1.amazonaws.com/${fileName}`;
+
+      const createCourseBody = {
+        name: courseName,
+        imageUrl: fileUrl,
+        description,
+        tags,
+      };
+
+      await api.post(`/course/${userId}`, createCourseBody);
+    } catch (error) {
+      alert(`Erro ao fazer upload: ${error.message}`);
+    }
+  }
+
+  function handleNewTag(event) {
+    if (event.key === 'Enter' && tagInput) {
+      event.preventDefault();
+      setTags([...tags, tagInput]);
+      setTagInput('');
+    }
+  }
 
   const renderCourseCard = (course) => (
     <Col xs={12} sm={6} md={4} lg={3} key={course.id} className='mb-4'>
@@ -277,28 +318,17 @@ const UserProfile = () => {
                       <Form.Label>Nome do Curso</Form.Label>
                       <Form.Control
                         type='text'
-                        value={newCourse.name}
-                        onChange={(e) => setNewCourse({ ...newCourse, name: e.target.value })}
+                        value={courseName}
+                        onChange={(e) => setCourseName(e.target.value)}
                         placeholder='Digite o nome do curso'
-                      />
-                    </Form.Group>
-                    <Form.Group className='mb-3'>
-                      <Form.Label>User ID</Form.Label>
-                      <Form.Control
-                        type='text'
-                        value={newCourse.userId}
-                        onChange={(e) => setNewCourse({ ...newCourse, userId: e.target.value })}
-                        placeholder='ID do usuário criador'
                       />
                     </Form.Group>
                     <Form.Group className='mb-3'>
                       <Form.Label>Descrição</Form.Label>
                       <Form.Control
                         as='textarea'
-                        value={newCourse.description}
-                        onChange={(e) =>
-                          setNewCourse({ ...newCourse, description: e.target.value })
-                        }
+                        value={description}
+                        onChange={(e) => setDescription(e.target.value)}
                         placeholder='Descrição do curso'
                       />
                     </Form.Group>
@@ -310,17 +340,11 @@ const UserProfile = () => {
                           value={tagInput}
                           onChange={(e) => setTagInput(e.target.value)}
                           placeholder='Digite uma tag e pressione Enter'
-                          onKeyDown={(e) => {
-                            if (e.key === 'Enter' && tagInput) {
-                              e.preventDefault();
-                              setNewCourse({ ...newCourse, tags: [...newCourse.tags, tagInput] });
-                              setTagInput('');
-                            }
-                          }}
+                          onKeyDown={handleNewTag}
                         />
                       </div>
                       <div style={{ marginTop: 6, display: 'flex', gap: 6, flexWrap: 'wrap' }}>
-                        {newCourse.tags.map((tag, idx) => (
+                        {tags.map((tag, idx) => (
                           <span
                             key={idx}
                             style={{
@@ -334,12 +358,7 @@ const UserProfile = () => {
                             {tag}{' '}
                             <span
                               style={{ cursor: 'pointer', color: '#c00', marginLeft: 4 }}
-                              onClick={() =>
-                                setNewCourse({
-                                  ...newCourse,
-                                  tags: newCourse.tags.filter((t, i) => i !== idx),
-                                })
-                              }>
+                              onClick={() => setTags(tags.filter((t, i) => i !== idx))}>
                               ×
                             </span>
                           </span>
@@ -351,11 +370,11 @@ const UserProfile = () => {
                       <Form.Control
                         type='file'
                         accept='image/*'
-                        onChange={(e) => setNewCourse({ ...newCourse, image: e.target.files[0] })}
+                        onChange={(e) => setThumbnailFile(e.target.files[0])}
                       />
                     </Form.Group>
                     {/* Certificado */}
-                    <Form.Group className='mb-3'>
+                    {/*<Form.Group className='mb-3'>
                       <Form.Label>Certificado (arquivo)</Form.Label>
                       <Form.Control
                         type='file'
@@ -364,34 +383,14 @@ const UserProfile = () => {
                           setNewCourse({ ...newCourse, certificate: e.target.files[0] })
                         }
                       />
-                    </Form.Group>
+                    </Form.Group>*/}
                   </Form>
                 </Modal.Body>
                 <Modal.Footer>
                   <Button variant='secondary' onClick={() => setShowModal(false)}>
                     Cancelar
                   </Button>
-                  <Button
-                    variant='primary'
-                    onClick={() => {
-                      // Mock: adiciona novo curso à lista (apenas título)
-                      if (newCourse.name) {
-                        courses.push({
-                          id: Date.now(),
-                          name: newCourse.name,
-                          description: newCourse.description,
-                        });
-                        setNewCourse({
-                          name: '',
-                          userId: '',
-                          description: '',
-                          tags: [],
-                          image: null,
-                          certificate: null,
-                        });
-                        setShowModal(false);
-                      }
-                    }}>
+                  <Button variant='primary' onClick={handleCreateCourse}>
                     Salvar
                   </Button>
                 </Modal.Footer>
@@ -410,6 +409,4 @@ const UserProfile = () => {
       </div>
     </div>
   );
-};
-
-export default UserProfile;
+}
