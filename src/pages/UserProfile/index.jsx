@@ -346,7 +346,7 @@ export default function UserProfile() {
 
         {/* Tabs */}
         <div className='d-flex border-bottom user-profile-tabs-container'>
-          {['cursos', 'exames', 'materiais', 'aulas', 'certificados'].map((tab) => (
+          {['cursos', 'exames', 'materiais', 'aulas'].map((tab) => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
@@ -456,11 +456,6 @@ export default function UserProfile() {
                 )}
               </div>
             </>
-          )}
-
-          {/* --- ABA CERTIFICADOS (ainda sem funcionalidade) --- */}
-          {activeTab === 'certificados' && (
-            <div className='text-muted'>Certificados serão exibidos aqui</div>
           )}
 
           {/* --- ABA AULAS --- */}
