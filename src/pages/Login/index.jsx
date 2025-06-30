@@ -43,7 +43,7 @@ function Login() {
       setToken(token);
       setBio(bio);
 
-      navigate('/pages/Home/');
+      navigate('/');
     } catch (error) {
       console.error('Login failed:', error);
       alert('Falha no login. Verifique suas credenciais.');

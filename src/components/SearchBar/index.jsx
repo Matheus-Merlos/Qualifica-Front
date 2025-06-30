@@ -81,7 +81,9 @@ export default function SearchBar() {
               <li>
                 <Link to='/profile'>Meus Dados</Link>
               </li>
-              <li className='logout'>Sair</li>
+              <li className='logout'>
+                <Link to='/login'>Sair</Link>
+              </li>
             </ul>
           </div>
 
