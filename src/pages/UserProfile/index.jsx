@@ -39,9 +39,9 @@ export default function UserProfile() {
   const [thumbnailFile, setThumbnailFile] = useState(null);
   const [description, setDescription] = useState('');
 
-  /* ESTADOS PARA CRIAÇÃO DE EXAME (CUSTOMIZÁVEL) */
+  /* ESTADOS PARA CRIAÇÃO DE PROVAS */
   const [examName, setExamName] = useState('');
-  const [examDescription, setExamDescription] = useState('');
+  const [questions, setQuestions] = useState([]);
 
   /* ESTADOS PARA CRIAÇÃO DE MATERIAL (CUSTOMIZÁVEL) */
   const [materialName, setMaterialName] = useState('');
@@ -117,69 +117,104 @@ export default function UserProfile() {
     }
   }
 
-  // --- NOVAS FUNÇÕES DE CRIAÇÃO (PLACEHOLDERS) ---
+  /*
+  FUNÇÕES UTILIZADAS NA CRIAÇÃO DE PROVAS
+  */
+  function createNewAlternative() {
+    return { description: '', isTrue: false };
+  }
+  function createNewQuestion() {
+    return {
+      question: '',
+      alternatives: [createNewAlternative(), createNewAlternative()],
+    };
+  }
+
+  function handleOpenCreateExamModal() {
+    setExamName('');
+    setQuestions([createNewQuestion()]); // Inicia com uma pergunta padrão
+    setShowExamModal(true);
+  }
+
+  function handleCloseExamModal() {
+    setShowExamModal(false);
+  }
+
+  function handleQuestionChange(index, value) {
+    const updatedQuestions = questions.map((q, i) => (i === index ? { ...q, question: value } : q));
+    setQuestions(updatedQuestions);
+  }
+
+  function handleAddQuestion() {
+    setQuestions([...questions, createNewQuestion()]);
+  }
+
+  function handleRemoveQuestion(index) {
+    if (questions.length > 1) {
+      const updatedQuestions = questions.filter((_, i) => i !== index);
+      setQuestions(updatedQuestions);
+    } else {
+      alert('Um exame deve ter pelo menos uma pergunta.');
+    }
+  }
+
+  function handleAlternativeChange(qIndex, aIndex, value) {
+    const updatedQuestions = [...questions];
+    updatedQuestions[qIndex].alternatives[aIndex].description = value;
+    setQuestions(updatedQuestions);
+  }
+
+  function handleAddAlternative(qIndex) {
+    const updatedQuestions = [...questions];
+    updatedQuestions[qIndex].alternatives.push(createNewAlternative());
+    setQuestions(updatedQuestions);
+  }
+
+  function handleRemoveAlternative(qIndex, aIndex) {
+    const question = questions[qIndex];
+    if (question.alternatives.length > 2) {
+      const updatedAlternatives = question.alternatives.filter((_, i) => i !== aIndex);
+      const updatedQuestions = [...questions];
+      updatedQuestions[qIndex].alternatives = updatedAlternatives;
+      setQuestions(updatedQuestions);
+    } else {
+      alert('Uma pergunta deve ter pelo menos duas alternativas.');
+    }
+  }
+
+  function handleSetCorrectAlternative(qIndex, aIndex) {
+    const updatedQuestions = [...questions];
+    updatedQuestions[qIndex].alternatives = updatedQuestions[qIndex].alternatives.map((alt, i) => ({
+      ...alt,
+      isTrue: i === aIndex,
+    }));
+    setQuestions(updatedQuestions);
+  }
 
   async function handleCreateExam() {
-    if (!examName) {
-      alert('O nome do exame é obrigatório.');
-      return;
-    }
-    setIsLoading(true);
+    if (!examName || questions.length < 1) return;
+
+    const createExamBody = {
+      name: examName,
+      questions,
+    };
+
     try {
-      // **TODO: Substitua pela sua lógica de API real**
-      const body = { name: examName, description: examDescription };
-      await api.post(`/exam/${userId}`, body);
-      setShowExamModal(false);
+      await api.post(`/exam/${userId}`, createExamBody);
+
+      setQuestions([createNewQuestion()]);
+      setExamName('');
       fetchUserResources();
     } catch (error) {
-      alert(`Erro ao criar exame: ${error.message}`);
-    } finally {
-      setIsLoading(false);
+      alert(`erro ao criar prova: ${error.response.data}`);
     }
   }
 
-  async function handleCreateMaterial() {
-    if (!materialName || !materialFile) {
-      alert('Por favor, preencha o nome do material e selecione um arquivo.');
-      return;
-    }
-    setIsLoading(true);
-    try {
-      // **TODO: Implemente a lógica de upload de arquivo (similar ao curso, se necessário)**
-      // e a chamada de API para criar o material.
-      console.log('Criando material:', { name: materialName, file: materialFile });
-      // Exemplo: await api.post(`/material/${userId}`, formData);
+  // --- NOVAS FUNÇÕES DE CRIAÇÃO (PLACEHOLDERS) ---
 
-      // Placeholder para demonstração:
-      await new Promise((resolve) => setTimeout(resolve, 1000)); // Simula chamada de API
+  async function handleCreateMaterial() {}
 
-      setShowMaterialModal(false);
-      fetchUserResources();
-    } catch (error) {
-      alert(`Erro ao criar material: ${error.message}`);
-    } finally {
-      setIsLoading(false);
-    }
-  }
-
-  async function handleCreateLesson() {
-    if (!lessonName) {
-      alert('O nome da aula é obrigatório.');
-      return;
-    }
-    setIsLoading(true);
-    try {
-      // **TODO: Substitua pela sua lógica de API real**
-      const body = { name: lessonName, description: lessonDescription };
-      await api.post(`/lesson/${userId}`, body);
-      setShowLessonModal(false);
-      fetchUserResources();
-    } catch (error) {
-      alert(`Erro ao criar aula: ${error.message}`);
-    } finally {
-      setIsLoading(false);
-    }
-  }
+  async function handleCreateLesson() {}
 
   function handleNewTag(event) {
     if ((event.key === 'Enter' || event.key === ' ') && tagInput) {
@@ -273,7 +308,7 @@ export default function UserProfile() {
                 <Button
                   variant='primary'
                   className='user-profile-new-course-button'
-                  onClick={() => setShowExamModal(true)}>
+                  onClick={handleOpenCreateExamModal}>
                   + Novo Exame
                 </Button>
               </div>
@@ -437,35 +472,93 @@ export default function UserProfile() {
       </Modal>
 
       {/* Modal Novo Exame */}
-      <Modal show={showExamModal} onHide={() => setShowExamModal(false)}>
+      <Modal show={showExamModal} onHide={handleCloseExamModal} size='lg'>
         <Modal.Header closeButton>
           <Modal.Title>Novo Exame</Modal.Title>
         </Modal.Header>
         <Modal.Body>
           <Form>
             <Form.Group className='mb-3'>
-              <Form.Label>Nome do Exame</Form.Label>
+              <Form.Label className='fw-bold'>Nome do Exame*</Form.Label>
               <Form.Control
                 type='text'
                 value={examName}
                 onChange={(e) => setExamName(e.target.value)}
-                placeholder='Digite o nome do exame'
+                placeholder='Ex: Prova de JavaScript Básico'
+                required
               />
             </Form.Group>
-            <Form.Group className='mb-3'>
-              <Form.Label>Descrição</Form.Label>
-              <Form.Control
-                as='textarea'
-                value={examDescription}
-                onChange={(e) => setExamDescription(e.target.value)}
-                placeholder='Descrição ou instruções do exame'
-              />
-            </Form.Group>
-            {/* **ADICIONE AQUI OUTROS CAMPOS PARA O EXAME** */}
+
+            <hr />
+
+            {questions.map((question, qIndex) => (
+              <div key={qIndex} className='p-3 mb-3 border rounded bg-light'>
+                <div className='d-flex justify-content-between align-items-center mb-3'>
+                  <Form.Label className='fw-bold mb-0'>Pergunta {qIndex + 1}</Form.Label>
+                  {questions.length > 1 && (
+                    <Button
+                      variant='outline-danger'
+                      size='sm'
+                      className='danger-button'
+                      onClick={() => handleRemoveQuestion(qIndex)}>
+                      Remover Pergunta
+                    </Button>
+                  )}
+                </div>
+                <Form.Control
+                  as='textarea'
+                  rows={2}
+                  value={question.question}
+                  onChange={(e) => handleQuestionChange(qIndex, e.target.value)}
+                  placeholder={`Enunciado da pergunta ${qIndex + 1}`}
+                  className='mb-3'
+                />
+
+                <Form.Label className='fw-bold'>Alternativas</Form.Label>
+                {question.alternatives.map((alt, aIndex) => (
+                  <div key={aIndex} className='d-flex align-items-center gap-2 mb-2'>
+                    <Form.Check
+                      type='radio'
+                      name={`question-${qIndex}`}
+                      id={`alt-${qIndex}-${aIndex}`}
+                      checked={alt.isTrue}
+                      onChange={() => handleSetCorrectAlternative(qIndex, aIndex)}
+                      aria-label='Marcar como correta'
+                    />
+                    <Form.Control
+                      type='text'
+                      value={alt.description}
+                      onChange={(e) => handleAlternativeChange(qIndex, aIndex, e.target.value)}
+                      placeholder={`Descrição da alternativa ${aIndex + 1}`}
+                    />
+                    {question.alternatives.length > 2 && (
+                      <Button
+                        variant='link'
+                        className='text-danger p-0'
+                        onClick={() => handleRemoveAlternative(qIndex, aIndex)}>
+                        <span aria-hidden='true'>&times;</span>
+                      </Button>
+                    )}
+                  </div>
+                ))}
+
+                <Button
+                  variant='outline-primary'
+                  size='sm'
+                  className='mt-2'
+                  onClick={() => handleAddAlternative(qIndex)}>
+                  + Adicionar Alternativa
+                </Button>
+              </div>
+            ))}
+
+            <Button variant='success' className='mt-3' onClick={handleAddQuestion}>
+              Adicionar Nova Pergunta
+            </Button>
           </Form>
         </Modal.Body>
         <Modal.Footer>
-          <Button variant='secondary' onClick={() => setShowExamModal(false)} disabled={isLoading}>
+          <Button variant='secondary' onClick={handleCloseExamModal} disabled={isLoading}>
             Cancelar
           </Button>
           <Button variant='primary' onClick={handleCreateExam} disabled={isLoading}>

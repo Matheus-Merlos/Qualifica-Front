@@ -65,8 +65,6 @@ export default function WatchCourse() {
 
     const time = `${pad(hours)}:${pad(minutes)}:${pad(seconds)}`;
 
-    console.log(time);
-
     try {
       await api.patch(`/course/${courseId}/progress/${userId}/${sectionResourceId}`, {
         time,
