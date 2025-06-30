@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Modal, Button, Form, Spinner } from 'react-bootstrap';
 import { Col, Card, Image } from 'react-bootstrap';
@@ -10,11 +10,6 @@ import { FiUser } from 'react-icons/fi';
 import api from '../../utils/api';
 import axios from 'axios';
 import { v4 as uuidv4 } from 'uuid';
-
-const courses = [
-  { id: 1, name: 'JS Fundamentals', description: 'Curso de JavaScript básico.' },
-  { id: 2, name: 'React Avançado', description: 'Curso avançado de React.' },
-];
 
 const TabPanel = ({ children, activeTab, index }) => (
   <div
@@ -35,13 +30,39 @@ export default function UserProfile() {
   const [name] = useAtom(nameAtom);
   const [email] = useAtom(emailAtom);
 
+  /*
+  ESTADOS DE RECURSOS DO USUÁRIO
+  */
+  const [userCourses, setUserCourses] = useState([]);
+
+  /*
+  ESTADOS PARA CONFIGURAÇÃO DE UI
+  */
   const [isLoading, setIsLoading] = useState(false);
 
+  /*
+  ESTADOS PARA CRIAÇÃO DE CURSO
+  */
   const [courseName, setCourseName] = useState('');
   const [tags, setTags] = useState([]);
   const [tagInput, setTagInput] = useState('');
   const [thumbnailFile, setThumbnailFile] = useState(null);
   const [description, setDescription] = useState('');
+
+  async function fetchUserCourses() {
+    try {
+      const response = await api.get(`course/${userId}/courses`);
+      setUserCourses(response.data);
+    } catch (error) {
+      alert(error.reponse.data);
+    }
+  }
+
+  useEffect(() => {
+    if (userId) {
+      fetchUserCourses();
+    }
+  }, [userId]);
 
   async function handleCreateCourse() {
     if (!thumbnailFile) return;
@@ -78,6 +99,7 @@ export default function UserProfile() {
 
       await api.post(`/course/${userId}`, createCourseBody);
       setShowModal(false);
+      fetchUserCourses();
     } catch (error) {
       alert(`Erro ao fazer upload: ${error.message}`);
     } finally {
@@ -92,34 +114,6 @@ export default function UserProfile() {
       setTagInput('');
     }
   }
-
-  const renderCourseCard = (course) => (
-    <Col xs={12} sm={6} md={4} lg={3} key={course.id} className='mb-4'>
-      <Card
-        className='h-100 shadow-sm'
-        style={{
-          borderRadius: '8px',
-          backgroundColor: '#f5f0ff',
-          transition: 'transform 0.2s',
-          border: 'none',
-        }}
-        onMouseOver={(e) => (e.currentTarget.style.transform = 'translateY(-4px)')}
-        onMouseOut={(e) => (e.currentTarget.style.transform = 'none')}>
-        <div
-          style={{
-            paddingTop: '100%',
-            position: 'relative',
-            backgroundColor: '#e8e0ff',
-            borderRadius: '8px 8px 0 0',
-          }}>
-          {/* Course image placeholder */}
-        </div>
-        <Card.Body className='d-flex flex-column'>
-          <Card.Title className='text-center mb-0'>{course.title}</Card.Title>
-        </Card.Body>
-      </Card>
-    </Col>
-  );
 
   return (
     <div
@@ -272,12 +266,12 @@ export default function UserProfile() {
                 </Button>
               </div>
               <div style={{ display: 'flex', gap: 16, marginLeft: 8 }}>
-                {courses.length > 0 ? (
-                  courses.map((course) => (
+                {userCourses.length > 0 ? (
+                  userCourses.map((course) => (
                     <div
                       key={course.id}
                       style={{
-                        width: 180,
+                        width: 300,
                         minHeight: 180,
                         background: '#ece6fa',
                         borderRadius: 12,
@@ -296,7 +290,9 @@ export default function UserProfile() {
                       <div style={{ flex: 1, width: '100%' }}>
                         <div style={{ fontWeight: 600 }}>{course.name}</div>
                         <div style={{ fontSize: 13, color: '#888', marginBottom: 8 }}>
-                          {course.description}
+                          {course.description?.length > 200
+                            ? `${course.description.slice(0, 200)}...`
+                            : course.description}
                         </div>
                       </div>
                       <button
