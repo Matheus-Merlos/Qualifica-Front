@@ -1,324 +1,846 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Modal, Button, Form } from 'react-bootstrap';
-import { Container, Row, Col, Card, Tab, Tabs, Image } from 'react-bootstrap';
+import { Modal, Button, Form, Spinner } from 'react-bootstrap';
 import SearchBar from '../../components/SearchBar';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import './styles.css'; // O mesmo arquivo CSS que você forneceu
+import { useAtom } from 'jotai';
+import { emailAtom, nameAtom, userIdAtom } from '../../store/persistentAtoms';
+import { FiUser } from 'react-icons/fi';
+import api from '../../utils/api';
+import axios from 'axios';
+import { v4 as uuidv4 } from 'uuid';
 
-// Mock data
-const userData = {
-  name: 'Maria Fernanda',
-  email: 'maria@email.com',
-  avatar: '/path-to-avatar.jpg', // Replace with actual path or URL
-};
-
-const courses = [
-  { id: 1, name: 'JS Fundamentals', description: 'Curso de JavaScript básico.' },
-  { id: 2, name: 'React Avançado', description: 'Curso avançado de React.' },
-];
-
-const materials = []; // Add mock materials
-const classes = []; // Add mock classes
-const exams = []; // Add mock exams
-
-const TabPanel = ({ children, activeTab, index }) => (
-  <div 
-    role="tabpanel" 
-    hidden={activeTab !== index}
-    id={`user-tabpanel-${index}`}
-    aria-labelledby={`user-tab-${index}`}
-  >
-    {activeTab === index && (
-      <div className="py-3">
-        {children}
-      </div>
-    )}
-  </div>
-);
-
-const UserProfile = () => {
+export default function UserProfile() {
   const [activeTab, setActiveTab] = useState('cursos');
   const navigate = useNavigate();
-  const [showModal, setShowModal] = useState(false);
-  const [newCourse, setNewCourse] = useState({
-    name: '',
-    userId: '',
-    description: '',
-    tags: [],
-    image: null,
-    certificate: null
-  });
-  // Para campos dinâmicos:
-  const [tagInput, setTagInput] = useState('');
 
-  const renderCourseCard = (course) => (
-    <Col xs={12} sm={6} md={4} lg={3} key={course.id} className="mb-4">
-      <Card 
-        className="h-100 shadow-sm" 
-        style={{
-          borderRadius: '8px',
-          backgroundColor: '#f5f0ff',
-          transition: 'transform 0.2s',
-          border: 'none',
-        }}
-        onMouseOver={(e) => e.currentTarget.style.transform = 'translateY(-4px)'}
-        onMouseOut={(e) => e.currentTarget.style.transform = 'none'}
-      >
-        <div 
-          style={{
-            paddingTop: '100%',
-            position: 'relative',
-            backgroundColor: '#e8e0ff',
-            borderRadius: '8px 8px 0 0',
-          }}
-        >
-          {/* Course image placeholder */}
-        </div>
-        <Card.Body className="d-flex flex-column">
-          <Card.Title className="text-center mb-0">
-            {course.title}
-          </Card.Title>
-        </Card.Body>
-      </Card>
-    </Col>
+  const [userId] = useAtom(userIdAtom);
+  const [name] = useAtom(nameAtom);
+  const [email] = useAtom(emailAtom);
+
+  /* ESTADOS DE RECURSOS DO USUÁRIO */
+  const [userCourses, setUserCourses] = useState([]);
+  const [userExams, setUserExams] = useState([]);
+  const [userMaterials, setUserMaterials] = useState([]);
+  const [userLessons, setUserLessons] = useState([]);
+
+  /* ESTADOS PARA CONFIGURAÇÃO DE UI */
+  const [isLoading, setIsLoading] = useState(false);
+  const [showCourseModal, setShowCourseModal] = useState(false);
+  const [showExamModal, setShowExamModal] = useState(false);
+  const [showMaterialModal, setShowMaterialModal] = useState(false);
+  const [showLessonModal, setShowLessonModal] = useState(false);
+
+  /* ESTADOS PARA CRIAÇÃO DE CURSO */
+  const [courseName, setCourseName] = useState('');
+  const [tags, setTags] = useState([]);
+  const [tagInput, setTagInput] = useState('');
+  const [thumbnailFile, setThumbnailFile] = useState(null);
+  const [description, setDescription] = useState('');
+
+  /* ESTADOS PARA CRIAÇÃO DE PROVAS */
+  const [examName, setExamName] = useState('');
+  const [questions, setQuestions] = useState([]);
+
+  /* ESTADOS PARA CRIAÇÃO DE MATERIAL (CUSTOMIZÁVEL) */
+  const [materialName, setMaterialName] = useState('');
+  const [materialUrl, setMaterialUrl] = useState('');
+  const [materialDescription, setMaterialDescription] = useState('');
+
+  /* ESTADOS PARA CRIAÇÃO DE AULA (CUSTOMIZÁVEL) */
+  const [lessonName, setLessonName] = useState('');
+  const [lessonFile, setLessonFile] = useState('');
+  const [lessonDescription, setLessonDescription] = useState('');
+
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [itemToDelete, setItemToDelete] = useState(null); // Pode ser um curso, exame, etc.
+
+  async function fetchUserResources() {
+    try {
+      // Usando Promise.all para carregar recursos em paralelo
+      const [coursesRes, examsRes, materialsRes, lessonsRes] = await Promise.all([
+        api.get(`course/${userId}/courses`),
+        api.get(`exam/${userId}/exams`),
+        api.get(`material/${userId}/materials`),
+        api.get(`lesson/${userId}/lessons`),
+      ]);
+
+      setUserCourses(coursesRes.data);
+      setUserExams(examsRes.data);
+      setUserMaterials(materialsRes.data);
+      setUserLessons(lessonsRes.data);
+    } catch (error) {
+      alert(error.response?.data?.message || 'Erro ao buscar recursos.');
+    }
+  }
+
+  useEffect(() => {
+    if (userId) {
+      fetchUserResources();
+    }
+  }, [userId]);
+
+  function handleNewTag(event) {
+    if ((event.key === 'Enter' || event.key === ' ') && tagInput) {
+      event.preventDefault();
+      setTags([...tags, tagInput.trim()]);
+      setTagInput('');
+    }
+  }
+
+  async function handleCreateCourse() {
+    if (!thumbnailFile || !courseName) {
+      alert('Por favor, preencha o nome do curso e selecione uma imagem.');
+      return;
+    }
+    setIsLoading(true);
+
+    const fileExtension = thumbnailFile.name.split('.').pop();
+    const uniqueFileName = `${uuidv4()}.${fileExtension}`;
+    const fileName = encodeURIComponent(uniqueFileName);
+    const fileType = encodeURIComponent(thumbnailFile.type);
+
+    try {
+      const awsEndpointResponse = await api.get(
+        `/aws/presigned-url?fileName=${fileName}&fileType=${fileType}`
+      );
+      const { url: awsUploadURL } = awsEndpointResponse.data;
+
+      await axios.put(awsUploadURL, thumbnailFile, {
+        headers: { 'Content-Type': thumbnailFile.type },
+      });
+
+      const fileUrl = `https://qualifica-mais-thumbnail-bucket.s3.us-east-1.amazonaws.com/${fileName}`;
+
+      const createCourseBody = {
+        name: courseName,
+        imageUrl: fileUrl,
+        description,
+        tags,
+      };
+
+      await api.post(`/course/${userId}`, createCourseBody);
+      setShowCourseModal(false);
+      fetchUserResources(); // Recarrega TODOS os recursos para manter a UI sincronizada
+    } catch (error) {
+      alert(`Erro ao fazer upload: ${error.message}`);
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
+  // Executa a exclusão após a confirmação no modal
+  // Objeto para traduzir os tipos para nomes amigáveis no modal
+  const resourceTypeNames = {
+    course: 'Curso',
+    exam: 'Exame',
+    material: 'Material',
+    lesson: 'Aula',
+  };
+
+  // Abre o modal de exclusão para qualquer tipo de item
+  function handleOpenDeleteModal(item, type) {
+    setItemToDelete({ ...item, type: type, typeName: resourceTypeNames[type] });
+    setShowDeleteModal(true);
+  }
+
+  // Fecha o modal e limpa o estado genérico
+  function handleCloseDeleteModal() {
+    setShowDeleteModal(false);
+    setItemToDelete(null);
+  }
+
+  // Executa a exclusão para qualquer tipo de item
+  async function executeDelete() {
+    if (!itemToDelete) return;
+
+    setIsLoading(true);
+    try {
+      if (itemToDelete.type === 'material') {
+        await api.delete(`/${itemToDelete.type}/${itemToDelete.id}`);
+      } else {
+        await api.delete(`/${itemToDelete.type}/${userId}/${itemToDelete.id}`);
+      }
+
+      handleCloseDeleteModal();
+      fetchUserResources();
+    } catch (error) {
+      console.error(`Erro ao deletar ${itemToDelete.typeName}:`, error);
+      alert(
+        `Não foi possível deletar o item. Erro: ${error.response?.data?.message || error.message}`
+      );
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
+  /*
+  FUNÇÕES UTILIZADAS NA CRIAÇÃO DE PROVAS
+  */
+  function createNewAlternative() {
+    return { description: '', isTrue: false };
+  }
+  function createNewQuestion() {
+    return {
+      question: '',
+      alternatives: [createNewAlternative(), createNewAlternative()],
+    };
+  }
+
+  function handleOpenCreateExamModal() {
+    setExamName('');
+    setQuestions([createNewQuestion()]); // Inicia com uma pergunta padrão
+    setShowExamModal(true);
+  }
+
+  function handleCloseExamModal() {
+    setShowExamModal(false);
+  }
+
+  function handleQuestionChange(index, value) {
+    const updatedQuestions = questions.map((q, i) => (i === index ? { ...q, question: value } : q));
+    setQuestions(updatedQuestions);
+  }
+
+  function handleAddQuestion() {
+    setQuestions([...questions, createNewQuestion()]);
+  }
+
+  function handleRemoveQuestion(index) {
+    if (questions.length > 1) {
+      const updatedQuestions = questions.filter((_, i) => i !== index);
+      setQuestions(updatedQuestions);
+    } else {
+      alert('Um exame deve ter pelo menos uma pergunta.');
+    }
+  }
+
+  function handleAlternativeChange(qIndex, aIndex, value) {
+    const updatedQuestions = [...questions];
+    updatedQuestions[qIndex].alternatives[aIndex].description = value;
+    setQuestions(updatedQuestions);
+  }
+
+  function handleAddAlternative(qIndex) {
+    const updatedQuestions = [...questions];
+    updatedQuestions[qIndex].alternatives.push(createNewAlternative());
+    setQuestions(updatedQuestions);
+  }
+
+  function handleRemoveAlternative(qIndex, aIndex) {
+    const question = questions[qIndex];
+    if (question.alternatives.length > 2) {
+      const updatedAlternatives = question.alternatives.filter((_, i) => i !== aIndex);
+      const updatedQuestions = [...questions];
+      updatedQuestions[qIndex].alternatives = updatedAlternatives;
+      setQuestions(updatedQuestions);
+    } else {
+      alert('Uma pergunta deve ter pelo menos duas alternativas.');
+    }
+  }
+
+  function handleSetCorrectAlternative(qIndex, aIndex) {
+    const updatedQuestions = [...questions];
+    updatedQuestions[qIndex].alternatives = updatedQuestions[qIndex].alternatives.map((alt, i) => ({
+      ...alt,
+      isTrue: i === aIndex,
+    }));
+    setQuestions(updatedQuestions);
+  }
+
+  async function handleCreateExam() {
+    if (!examName || questions.length < 1) return;
+
+    const createExamBody = {
+      name: examName,
+      questions,
+    };
+
+    try {
+      await api.post(`/exam/${userId}`, createExamBody);
+
+      setQuestions([createNewQuestion()]);
+      setExamName('');
+      fetchUserResources();
+    } catch (error) {
+      alert(`erro ao criar prova: ${error.response.data}`);
+    }
+  }
+
+  /*
+  FUNÇÕES PARA MATERIAL
+  */
+  async function handleCreateMaterial() {
+    if (!materialName || !materialUrl) return;
+
+    const createMaterialBody = {
+      name: materialName,
+      url: materialUrl,
+      description: materialDescription,
+    };
+
+    try {
+      await api.post(`/material/${userId}`, createMaterialBody);
+
+      setMaterialName();
+      setMaterialDescription('');
+      setMaterialUrl('');
+      setShowMaterialModal(false);
+      fetchUserResources();
+    } catch (error) {
+      alert(`erro ao criar material: ${error.response.data}`);
+    }
+  }
+
+  /*
+  FUNÇÕES PARA AULA
+  */
+  function getVideoDuration(file) {
+    return new Promise((resolve, reject) => {
+      const video = document.createElement('video');
+      video.preload = 'metadata';
+
+      video.onloadedmetadata = () => {
+        URL.revokeObjectURL(video.src);
+        const durationInSeconds = video.duration;
+
+        const formatTime = (totalSeconds) => {
+          const hours = Math.floor(totalSeconds / 3600);
+          const minutes = Math.floor((totalSeconds % 3600) / 60);
+          const seconds = Math.floor(totalSeconds % 60);
+          const pad = (num) => String(num).padStart(2, '0');
+          return `${pad(hours)}:${pad(minutes)}:${pad(seconds)}`;
+        };
+
+        resolve(formatTime(durationInSeconds));
+      };
+
+      video.onerror = () => {
+        reject(new Error('Erro ao carregar metadados do vídeo'));
+      };
+
+      video.src = URL.createObjectURL(file);
+    });
+  }
+
+  async function handleCreateLesson() {
+    if (!lessonFile || !lessonName) {
+      alert('Por favor, preencha o nome da aula e selecione um vídeo.');
+      return;
+    }
+    setIsLoading(true);
+
+    const fileExtension = lessonFile.name.split('.').pop();
+    const uniqueFileName = `${uuidv4()}.${fileExtension}`;
+    const fileName = encodeURIComponent(uniqueFileName);
+    const fileType = encodeURIComponent(lessonFile.type);
+
+    try {
+      const duration = await getVideoDuration(lessonFile);
+
+      const awsEndpointResponse = await api.get(
+        `/aws/lesson-bucket/presigned-url?fileName=${fileName}&fileType=${fileType}`
+      );
+      const { url: awsUploadURL } = awsEndpointResponse.data;
+
+      await axios.put(awsUploadURL, lessonFile, {
+        headers: { 'Content-Type': lessonFile.type },
+      });
+
+      const fileUrl = `https://qualifica-mais-lesson-bucket.s3.us-east-1.amazonaws.com/${fileName}`;
+
+      const createLessonBody = {
+        name: lessonName,
+        url: fileUrl,
+        duration,
+        description: lessonDescription,
+      };
+
+      await api.post(`/lesson/${userId}`, createLessonBody);
+      setLessonFile(null);
+      setLessonName('');
+      setLessonDescription('');
+      setShowLessonModal(false);
+      fetchUserResources();
+    } catch (error) {
+      alert(`Erro ao fazer upload: ${error.message}`);
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
+  const renderLoadingButton = () => (
+    <>
+      <Spinner as='span' animation='border' size='sm' role='status' aria-hidden='true' />{' '}
+      Carregando...
+    </>
   );
 
   return (
-    <div style={{ minHeight: '100vh', background: 'linear-gradient(120deg, #f3f4f8 60%, #f8f9fa 100%)' }}>
+    <div className='user-profile-container'>
       <SearchBar />
-      <div style={{ maxWidth: 1200, margin: '0 auto', paddingTop: 40, paddingLeft: 40, display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
+      <div className='user-profile-content-wrapper'>
         {/* User Info Section */}
-        <div 
-          className="d-flex align-items-center p-3 bg-white rounded shadow-sm"
-          style={{
-            borderRadius: '12px',
-            boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
-            minWidth: 280,
-            minHeight: 90,
-            marginBottom: 10
-          }}
-        >
-          <div 
-            className="rounded-circle d-flex align-items-center justify-content-center me-3"
-            style={{
-              width: '64px',
-              height: '64px',
-              border: '3px solid #7e57c2',
-              backgroundColor: '#f7f3ff',
-              overflow: 'hidden',
-              fontWeight: 600,
-              color: '#7e57c2',
-              fontSize: 16,
-              textAlign: 'center',
-              flexShrink: 0
-            }}
-          >
-            {userData.avatar ? (
-              <Image src={userData.avatar} alt={userData.name} fluid roundedCircle />
-            ) : (
-              <span>{userData.name.split(' ').map(n => n[0]).join(' ')}</span>
-            )}
+        <div className='d-flex align-items-center p-3 bg-white rounded shadow-sm user-profile-info-card'>
+          <div className='rounded-circle d-flex align-items-center justify-content-center me-3 user-profile-avatar-wrapper'>
+            <FiUser size={45} className='profile-picture' />
           </div>
           <div>
-            <div style={{ fontWeight: 600, color: '#222', fontSize: 18 }}>
-              {userData.name}
-            </div>
-            <div style={{ color: '#888', fontSize: 14 }}>
-              {userData.email}
-            </div>
+            <div className='user-profile-name'>{name}</div>
+            <div className='user-profile-email'>{email}</div>
           </div>
         </div>
+
         {/* Tabs */}
-        <div className="d-flex border-bottom" style={{ gap: 24, marginBottom: 30, marginLeft: 8 }}>
-          <button
-            onClick={() => setActiveTab('cursos')}
-            className={`btn btn-link text-decoration-none px-0 py-1 ${activeTab === 'cursos' ? 'text-primary border-bottom border-primary border-3' : 'text-muted'}`}
-            style={{ fontWeight: 500, borderRadius: 0, marginBottom: '-2px', border: 'none', backgroundColor: 'transparent', outline: 'none', boxShadow: 'none', fontSize: 15, minWidth: 60 }}
-          >
-            Cursos
-          </button>
-          <button
-            onClick={() => setActiveTab('exames')}
-            className={`btn btn-link text-decoration-none px-0 py-1 ${activeTab === 'exames' ? 'text-primary border-bottom border-primary border-3' : 'text-muted'}`}
-            style={{ fontWeight: 500, borderRadius: 0, marginBottom: '-2px', border: 'none', backgroundColor: 'transparent', outline: 'none', boxShadow: 'none', fontSize: 15, minWidth: 60 }}
-          >
-            Exames
-          </button>
-          <button
-            onClick={() => setActiveTab('materiais')}
-            className={`btn btn-link text-decoration-none px-0 py-1 ${activeTab === 'materiais' ? 'text-primary border-bottom border-primary border-3' : 'text-muted'}`}
-            style={{ fontWeight: 500, borderRadius: 0, marginBottom: '-2px', border: 'none', backgroundColor: 'transparent', outline: 'none', boxShadow: 'none', fontSize: 15, minWidth: 60 }}
-          >
-            Materiais
-          </button>
-          <button
-            onClick={() => setActiveTab('certificados')}
-            className={`btn btn-link text-decoration-none px-0 py-1 ${activeTab === 'certificados' ? 'text-primary border-bottom border-primary border-3' : 'text-muted'}`}
-            style={{ fontWeight: 500, borderRadius: 0, marginBottom: '-2px', border: 'none', backgroundColor: 'transparent', outline: 'none', boxShadow: 'none', fontSize: 15, minWidth: 60 }}
-          >
-            Certificados
-          </button>
-          <button
-            onClick={() => setActiveTab('aulas')}
-            className={`btn btn-link text-decoration-none px-0 py-1 ${activeTab === 'aulas' ? 'text-primary border-bottom border-primary border-3' : 'text-muted'}`}
-            style={{ fontWeight: 500, borderRadius: 0, marginBottom: '-2px', border: 'none', backgroundColor: 'transparent', outline: 'none', boxShadow: 'none', fontSize: 15, minWidth: 60 }}
-          >
-            Aulas
-          </button>
+        <div className='d-flex border-bottom user-profile-tabs-container'>
+          {['cursos', 'exames', 'materiais', 'aulas'].map((tab) => (
+            <button
+              key={tab}
+              onClick={() => setActiveTab(tab)}
+              className={`btn btn-link text-decoration-none px-0 py-1 user-profile-tab-button ${
+                activeTab === tab
+                  ? 'text-primary border-bottom border-primary border-3'
+                  : 'text-muted'
+              }`}>
+              {tab.charAt(0).toUpperCase() + tab.slice(1)}
+            </button>
+          ))}
         </div>
-        {/* Cards/Conteúdo */}
-        <div style={{ minWidth: 320 }}>
+
+        {/* --- Conteúdo das Abas --- */}
+        <div className='user-profile-tab-content'>
+          {/* --- ABA CURSOS --- */}
           {activeTab === 'cursos' && (
             <>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginLeft: 8, marginBottom: 18 }}>
-                <Button variant="primary" style={{ height: 44, borderRadius: 10, fontWeight: 500 }} onClick={() => setShowModal(true)}>
+              <div className='user-profile-actions-container'>
+                <Button
+                  variant='primary'
+                  className='user-profile-new-course-button'
+                  onClick={() => setShowCourseModal(true)}>
                   + Novo Curso
                 </Button>
               </div>
-              <div style={{ display: 'flex', gap: 16, marginLeft: 8 }}>
-                {courses.length > 0 ? (
-                  courses.map(course => (
-                    <div key={course.id} style={{
-                      width: 180,
-                      minHeight: 180,
-                      background: '#ece6fa',
-                      borderRadius: 12,
-                      display: 'flex',
-                      flexDirection: 'column',
-                      alignItems: 'center',
-                      justifyContent: 'space-between',
-                      boxShadow: '0 2px 8px rgba(126,87,194,0.05)',
-                      fontWeight: 500,
-                      color: '#3d2465',
-                      fontSize: 17,
-                      textAlign: 'center',
-                      wordBreak: 'break-word',
-                      padding: 12
-                    }}>
-                      <div style={{flex:1, width:'100%'}}>
-                        <div style={{fontWeight:600}}>{course.name}</div>
-                        <div style={{fontSize:13, color:'#888', marginBottom:8}}>{course.description}</div>
+              <div className='user-profile-courses-grid'>
+                {userCourses.map((course) => (
+                  <div key={course.id} className='user-profile-course-card'>
+                    <div className='user-profile-course-card-content'>
+                      <div className='user-profile-course-card-title'>{course.name}</div>
+                      <div className='user-profile-course-card-description'>
+                        {course.description?.length > 200
+                          ? `${course.description.slice(0, 200)}...`
+                          : course.description}
                       </div>
-                      <button className="btn btn-outline-secondary btn-sm mt-2" onClick={() => navigate(`/cursos/${course.id}/sessoes`)}>Gerenciar Sessões</button>
                     </div>
-                  ))
-                ) : (
-                  <div className="text-muted">Nenhum curso encontrado.</div>
-                )}
+                    <div className='d-flex justify-content-end gap-2 mt-2'>
+                      <Button
+                        variant='outline-secondary'
+                        size='sm'
+                        onClick={() => navigate(`/cursos/${course.id}/sessoes`)}>
+                        Gerenciar
+                      </Button>
+                      <Button
+                        variant='outline-danger'
+                        size='sm'
+                        onClick={() => handleOpenDeleteModal(course, 'course')}>
+                        Deletar
+                      </Button>
+                    </div>
+                  </div>
+                ))}
               </div>
-              {/* Modal Novo Curso */}
-              <Modal show={showModal} onHide={() => setShowModal(false)}>
-                <Modal.Header closeButton>
-                  <Modal.Title>Novo Curso</Modal.Title>
-                </Modal.Header>
-                <Modal.Body>
-                  <Form>
-                    {/* Dados do Curso */}
-                    <Form.Group className="mb-3">
-                      <Form.Label>Nome do Curso</Form.Label>
-                      <Form.Control
-                        type="text"
-                        value={newCourse.name}
-                        onChange={e => setNewCourse({ ...newCourse, name: e.target.value })}
-                        placeholder="Digite o nome do curso"
-                      />
-                    </Form.Group>
-                    <Form.Group className="mb-3">
-                      <Form.Label>User ID</Form.Label>
-                      <Form.Control
-                        type="text"
-                        value={newCourse.userId}
-                        onChange={e => setNewCourse({ ...newCourse, userId: e.target.value })}
-                        placeholder="ID do usuário criador"
-                      />
-                    </Form.Group>
-                    <Form.Group className="mb-3">
-                      <Form.Label>Descrição</Form.Label>
-                      <Form.Control
-                        as="textarea"
-                        value={newCourse.description}
-                        onChange={e => setNewCourse({ ...newCourse, description: e.target.value })}
-                        placeholder="Descrição do curso"
-                      />
-                    </Form.Group>
-                    <Form.Group className="mb-3">
-                      <Form.Label>Tags</Form.Label>
-                      <div style={{ display: 'flex', gap: 8 }}>
-                        <Form.Control
-                          type="text"
-                          value={tagInput}
-                          onChange={e => setTagInput(e.target.value)}
-                          placeholder="Digite uma tag e pressione Enter"
-                          onKeyDown={e => {
-                            if (e.key === 'Enter' && tagInput) {
-                              e.preventDefault();
-                              setNewCourse({ ...newCourse, tags: [...newCourse.tags, tagInput] });
-                              setTagInput('');
-                            }
-                          }}
-                        />
-                      </div>
-                      <div style={{ marginTop: 6, display: 'flex', gap: 6, flexWrap: 'wrap' }}>
-                        {newCourse.tags.map((tag, idx) => (
-                          <span key={idx} style={{ background: '#ece6fa', borderRadius: 8, padding: '2px 10px', fontSize: 13, color: '#7e57c2', marginRight: 4 }}>
-                            {tag} <span style={{ cursor: 'pointer', color: '#c00', marginLeft: 4 }} onClick={() => setNewCourse({ ...newCourse, tags: newCourse.tags.filter((t, i) => i !== idx) })}>×</span>
-                          </span>
-                        ))}
-                      </div>
-                    </Form.Group>
-                    <Form.Group className="mb-3">
-                      <Form.Label>Imagem do Curso</Form.Label>
-                      <Form.Control
-                        type="file"
-                        accept="image/*"
-                        onChange={e => setNewCourse({ ...newCourse, image: e.target.files[0] })}
-                      />
-                    </Form.Group>
-                    {/* Certificado */}
-                    <Form.Group className="mb-3">
-                      <Form.Label>Certificado (arquivo)</Form.Label>
-                      <Form.Control
-                        type="file"
-                        accept="application/pdf,image/*"
-                        onChange={e => setNewCourse({ ...newCourse, certificate: e.target.files[0] })}
-                      />
-                    </Form.Group>
-                  </Form>
-                </Modal.Body>
-                <Modal.Footer>
-                  <Button variant="secondary" onClick={() => setShowModal(false)}>
-                    Cancelar
-                  </Button>
-                  <Button variant="primary" onClick={() => {
-                    // Mock: adiciona novo curso à lista (apenas título)
-                    if (newCourse.name) {
-                      courses.push({ id: Date.now(), name: newCourse.name, description: newCourse.description });
-                      setNewCourse({ name: '', userId: '', description: '', tags: [], image: null, certificate: null });
-                      setShowModal(false);
-                    }
-                  }}>
-                    Salvar
-                  </Button>
-                </Modal.Footer>
-              </Modal>
             </>
           )}
+
+          {/* --- ABA EXAMES --- */}
           {activeTab === 'exames' && (
-            <div className="text-muted">Exames serão exibidos aqui</div>
+            <>
+              <div className='user-profile-actions-container'>
+                <Button
+                  variant='primary'
+                  className='user-profile-new-course-button'
+                  onClick={handleOpenCreateExamModal}>
+                  + Novo Exame
+                </Button>
+              </div>
+              <div className='user-profile-courses-grid'>
+                {userExams.map((exam) => (
+                  <div key={exam.id} className='user-profile-course-card'>
+                    <div className='user-profile-course-card-content'>
+                      <div className='user-profile-course-card-title'>{exam.name}</div>
+                    </div>
+                    <div className='d-flex justify-content-end gap-2 mt-2'>
+                      <Button
+                        variant='outline-danger'
+                        size='sm'
+                        onClick={() => handleOpenDeleteModal(exam, 'exam')}>
+                        Deletar
+                      </Button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </>
           )}
+
+          {/* --- ABA MATERIAIS --- */}
           {activeTab === 'materiais' && (
-            <div className="text-muted">Materiais serão exibidos aqui</div>
+            <>
+              <div className='user-profile-actions-container'>
+                <Button
+                  variant='primary'
+                  className='user-profile-new-course-button'
+                  onClick={() => setShowMaterialModal(true)}>
+                  + Novo Material
+                </Button>
+              </div>
+              <div className='user-profile-courses-grid'>
+                {userMaterials.map((material) => (
+                  <div key={material.id} className='user-profile-course-card'>
+                    <div className='user-profile-course-card-content'>
+                      <div className='user-profile-course-card-title'>{material.name}</div>
+                    </div>
+                    <div className='d-flex justify-content-end gap-2 mt-2'>
+                      <Button
+                        variant='outline-danger'
+                        size='sm'
+                        onClick={() => handleOpenDeleteModal(material, 'material')}>
+                        Deletar
+                      </Button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </>
           )}
-          {activeTab === 'certificados' && (
-            <div className="text-muted">Certificados serão exibidos aqui</div>
-          )}
+
+          {/* --- ABA AULAS --- */}
           {activeTab === 'aulas' && (
-            <div className="text-muted">Aulas serão exibidas aqui</div>
+            <>
+              <div className='user-profile-actions-container'>
+                <Button
+                  variant='primary'
+                  className='user-profile-new-course-button'
+                  onClick={() => setShowLessonModal(true)}>
+                  + Nova Aula
+                </Button>
+              </div>
+              <div className='user-profile-courses-grid'>
+                {userLessons.map((lesson) => (
+                  <div key={lesson.id} className='user-profile-course-card'>
+                    <div className='user-profile-course-card-content'>
+                      <div className='user-profile-course-card-title'>{lesson.name}</div>
+                    </div>
+                    <div className='d-flex justify-content-end gap-2 mt-2'>
+                      <Button
+                        variant='outline-danger'
+                        size='sm'
+                        onClick={() => handleOpenDeleteModal(lesson, 'lesson')}>
+                        Deletar
+                      </Button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </>
           )}
         </div>
       </div>
+
+      {/* --- MODAIS --- */}
+
+      {/* Modal Novo Curso */}
+      <Modal show={showCourseModal} onHide={() => setShowCourseModal(false)}>
+        <Modal.Header closeButton>
+          <Modal.Title>Novo Curso</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <Form>
+            <Form.Group className='mb-3'>
+              <Form.Label>Nome do Curso</Form.Label>
+              <Form.Control
+                type='text'
+                value={courseName}
+                onChange={(e) => setCourseName(e.target.value)}
+                placeholder='Digite o nome do curso'
+              />
+            </Form.Group>
+            <Form.Group className='mb-3'>
+              <Form.Label>Descrição</Form.Label>
+              <Form.Control
+                as='textarea'
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                placeholder='Descrição do curso'
+              />
+            </Form.Group>
+            <Form.Group className='mb-3'>
+              <Form.Label>Tags</Form.Label>
+              <div className='user-profile-tag-input-wrapper'>
+                <Form.Control
+                  type='text'
+                  value={tagInput}
+                  onChange={(e) => setTagInput(e.target.value)}
+                  placeholder='Digite uma tag e pressione Enter/Espaço'
+                  onKeyDown={handleNewTag}
+                />
+              </div>
+              <div className='user-profile-tags-display-area'>
+                {tags.map((tag, idx) => (
+                  <span key={idx} className='user-profile-tag-pill'>
+                    {tag}{' '}
+                    <span
+                      className='user-profile-tag-remove-button'
+                      onClick={() => setTags(tags.filter((t, i) => i !== idx))}>
+                      ×
+                    </span>
+                  </span>
+                ))}
+              </div>
+            </Form.Group>
+            <Form.Group className='mb-3'>
+              <Form.Label>Imagem do Curso</Form.Label>
+              <Form.Control
+                type='file'
+                accept='image/*'
+                onChange={(e) => setThumbnailFile(e.target.files[0])}
+              />
+            </Form.Group>
+          </Form>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button
+            variant='secondary'
+            onClick={() => setShowCourseModal(false)}
+            disabled={isLoading}>
+            Cancelar
+          </Button>
+          <Button variant='primary' onClick={handleCreateCourse} disabled={isLoading}>
+            {isLoading ? renderLoadingButton('Enviando') : 'Enviar'}
+          </Button>
+        </Modal.Footer>
+      </Modal>
+
+      {/* Modal Novo Exame */}
+      <Modal show={showExamModal} onHide={handleCloseExamModal} size='lg'>
+        <Modal.Header closeButton>
+          <Modal.Title>Novo Exame</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <Form>
+            <Form.Group className='mb-3'>
+              <Form.Label className='fw-bold'>Nome do Exame*</Form.Label>
+              <Form.Control
+                type='text'
+                value={examName}
+                onChange={(e) => setExamName(e.target.value)}
+                placeholder='Ex: Prova de JavaScript Básico'
+                required
+              />
+            </Form.Group>
+
+            <hr />
+
+            {questions.map((question, qIndex) => (
+              <div key={qIndex} className='p-3 mb-3 border rounded bg-light'>
+                <div className='d-flex justify-content-between align-items-center mb-3'>
+                  <Form.Label className='fw-bold mb-0'>Pergunta {qIndex + 1}</Form.Label>
+                  {questions.length > 1 && (
+                    <Button
+                      variant='outline-danger'
+                      size='sm'
+                      className='danger-button'
+                      onClick={() => handleRemoveQuestion(qIndex)}>
+                      Remover Pergunta
+                    </Button>
+                  )}
+                </div>
+                <Form.Control
+                  as='textarea'
+                  rows={2}
+                  value={question.question}
+                  onChange={(e) => handleQuestionChange(qIndex, e.target.value)}
+                  placeholder={`Enunciado da pergunta ${qIndex + 1}`}
+                  className='mb-3'
+                />
+
+                <Form.Label className='fw-bold'>Alternativas</Form.Label>
+                {question.alternatives.map((alt, aIndex) => (
+                  <div key={aIndex} className='d-flex align-items-center gap-2 mb-2'>
+                    <Form.Check
+                      type='radio'
+                      name={`question-${qIndex}`}
+                      id={`alt-${qIndex}-${aIndex}`}
+                      checked={alt.isTrue}
+                      onChange={() => handleSetCorrectAlternative(qIndex, aIndex)}
+                      aria-label='Marcar como correta'
+                    />
+                    <Form.Control
+                      type='text'
+                      value={alt.description}
+                      onChange={(e) => handleAlternativeChange(qIndex, aIndex, e.target.value)}
+                      placeholder={`Descrição da alternativa ${aIndex + 1}`}
+                    />
+                    {question.alternatives.length > 2 && (
+                      <Button
+                        variant='link'
+                        className='text-danger p-0'
+                        onClick={() => handleRemoveAlternative(qIndex, aIndex)}>
+                        <span aria-hidden='true'>&times;</span>
+                      </Button>
+                    )}
+                  </div>
+                ))}
+
+                <Button
+                  variant='outline-primary'
+                  size='sm'
+                  className='mt-2'
+                  onClick={() => handleAddAlternative(qIndex)}>
+                  + Adicionar Alternativa
+                </Button>
+              </div>
+            ))}
+
+            <Button variant='success' className='mt-3' onClick={handleAddQuestion}>
+              Adicionar Nova Pergunta
+            </Button>
+          </Form>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant='secondary' onClick={handleCloseExamModal} disabled={isLoading}>
+            Cancelar
+          </Button>
+          <Button variant='primary' onClick={handleCreateExam} disabled={isLoading}>
+            {isLoading ? renderLoadingButton('Criando') : 'Criar Exame'}
+          </Button>
+        </Modal.Footer>
+      </Modal>
+
+      {/* Modal Novo Material */}
+      <Modal show={showMaterialModal} onHide={() => setShowMaterialModal(false)}>
+        <Modal.Header closeButton>
+          <Modal.Title>Novo Material de Apoio</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <Form>
+            <Form.Group className='mb-3'>
+              <Form.Label>Nome do Material</Form.Label>
+              <Form.Control
+                type='text'
+                value={materialName}
+                onChange={(e) => setMaterialName(e.target.value)}
+                placeholder='Ex: Apostila de React, Lista de Exercícios'
+              />
+            </Form.Group>
+            <Form.Group className='mb-3'>
+              <Form.Label>URL do Material</Form.Label>
+              <Form.Control
+                type='text'
+                value={materialUrl}
+                onChange={(e) => setMaterialUrl(e.target.value)}
+                placeholder='Algum link de youtube, pdf, slides, etc.'
+              />
+            </Form.Group>
+            <Form.Group className='mb-3'>
+              <Form.Label>Descrição</Form.Label>
+              <Form.Control
+                as='textarea'
+                value={materialDescription}
+                onChange={(e) => setMaterialDescription(e.target.value)}
+                placeholder='Descrição do material'
+              />
+            </Form.Group>
+          </Form>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button
+            variant='secondary'
+            onClick={() => setShowMaterialModal(false)}
+            disabled={isLoading}>
+            Cancelar
+          </Button>
+          <Button variant='primary' onClick={handleCreateMaterial} disabled={isLoading}>
+            {isLoading ? renderLoadingButton('Enviando') : 'Criar Material'}
+          </Button>
+        </Modal.Footer>
+      </Modal>
+
+      {/* Modal Nova Aula */}
+      <Modal show={showLessonModal} onHide={() => setShowLessonModal(false)}>
+        <Modal.Header closeButton>
+          <Modal.Title>Nova Aula</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <Form>
+            <Form.Group className='mb-3'>
+              <Form.Label>Nome da Aula</Form.Label>
+              <Form.Control
+                type='text'
+                value={lessonName}
+                onChange={(e) => setLessonName(e.target.value)}
+                placeholder='Digite o nome da aula'
+              />
+            </Form.Group>
+            <Form.Group className='mb-3'>
+              <Form.Label>Arquivo</Form.Label>
+              <Form.Control
+                type='file'
+                accept='video/*'
+                onChange={(e) => setLessonFile(e.target.files[0])}
+              />
+            </Form.Group>
+            <Form.Group className='mb-3'>
+              <Form.Label>Descrição</Form.Label>
+              <Form.Control
+                as='textarea'
+                value={lessonDescription}
+                onChange={(e) => setLessonDescription(e.target.value)}
+                placeholder='Descrição da aula'
+              />
+            </Form.Group>
+          </Form>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button
+            variant='secondary'
+            onClick={() => setShowLessonModal(false)}
+            disabled={isLoading}>
+            Cancelar
+          </Button>
+          <Button variant='primary' onClick={handleCreateLesson} disabled={isLoading}>
+            {isLoading ? renderLoadingButton('Criando') : 'Criar Aula'}
+          </Button>
+        </Modal.Footer>
+      </Modal>
+
+      {/* Modal de Confirmação para Deletar Curso */}
+      <Modal show={showDeleteModal} onHide={handleCloseDeleteModal} centered>
+        <Modal.Header closeButton>
+          <Modal.Title>Confirmar Exclusão de {itemToDelete?.typeName}</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <p>
+            Você tem certeza que deseja excluir permanentemente o item
+            <strong> "{itemToDelete?.name}"</strong>?
+          </p>
+          <p className='text-danger'>Esta ação é irreversível.</p>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant='secondary' onClick={handleCloseDeleteModal} disabled={isLoading}>
+            Cancelar
+          </Button>
+          <Button variant='danger' onClick={executeDelete} disabled={isLoading}>
+            {isLoading ? (
+              <>
+                <Spinner as='span' animation='border' size='sm' /> Excluindo...
+              </>
+            ) : (
+              'Confirmar Exclusão'
+            )}
+          </Button>
+        </Modal.Footer>
+      </Modal>
     </div>
   );
-};
-
-export default UserProfile;
+}

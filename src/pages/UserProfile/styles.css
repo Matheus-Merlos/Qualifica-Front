@@ -1,0 +1,159 @@
+/* UserProfile.css */
+
+/* --- Estrutura Principal --- */
+.user-profile-container {
+  min-height: 100vh;
+  background: linear-gradient(120deg, #f3f4f8 60%, #f8f9fa 100%);
+}
+
+.user-profile-content-wrapper {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 40px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+/* --- Card de Informações do Usuário --- */
+.user-profile-info-card {
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  min-width: 280px;
+  min-height: 90px;
+  margin-bottom: 10px;
+}
+
+.user-profile-avatar-wrapper {
+  width: 64px;
+  height: 64px;
+  border: 3px solid #7e57c2;
+  background-color: #f7f3ff;
+  font-weight: 600;
+  color: #7e57c2;
+  font-size: 16px;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.user-profile-name {
+  font-weight: 600;
+  color: #222;
+  font-size: 18px;
+}
+
+.user-profile-email {
+  color: #888;
+  font-size: 14px;
+}
+
+/* --- Abas de Navegação --- */
+.user-profile-tabs-container {
+  gap: 24px;
+  margin-bottom: 30px;
+  margin-left: 8px;
+}
+
+.user-profile-tab-button {
+  font-weight: 500;
+  border-radius: 0;
+  margin-bottom: -2px; /* Alinha a borda inferior com a borda do container */
+  border: none;
+  background-color: transparent;
+  outline: none;
+  box-shadow: none !important; /* Força a remoção do box-shadow do bootstrap */
+  font-size: 15px;
+  min-width: 60px;
+}
+
+/* --- Conteúdo das Abas (Cursos, etc.) --- */
+.user-profile-tab-content {
+  min-width: 320px;
+  width: 100%;
+}
+
+.user-profile-actions-container {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-left: 8px;
+  margin-bottom: 18px;
+}
+
+.user-profile-new-course-button {
+  height: 44px;
+  border-radius: 10px;
+  font-weight: 500;
+}
+
+.user-profile-courses-grid {
+  display: flex;
+  gap: 16px;
+  margin-left: 8px;
+  flex-wrap: wrap; /* Permite que os cards quebrem para a próxima linha */
+}
+
+/* --- Card de Curso --- */
+.user-profile-course-card {
+  width: 360px;
+  min-height: 180px;
+  background: #ece6fa;
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  box-shadow: 0 2px 8px rgba(126, 87, 194, 0.05);
+  font-weight: 500;
+  color: #3d2465;
+  font-size: 17px;
+  text-align: center;
+  word-break: break-word;
+  padding: 12px;
+}
+
+.user-profile-course-card-content {
+  flex: 1;
+  width: 100%;
+}
+
+.user-profile-course-card-title {
+  font-weight: 600;
+}
+
+.user-profile-course-card-description {
+  font-size: 13px;
+  color: #888;
+  margin-bottom: 8px;
+}
+
+/* --- Modal e Formulário --- */
+.user-profile-tag-input-wrapper {
+  display: flex;
+  gap: 8px;
+}
+
+.user-profile-tags-display-area {
+  margin-top: 6px;
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.user-profile-tag-pill {
+  background: #ece6fa;
+  border-radius: 8px;
+  padding: 2px 10px;
+  font-size: 13px;
+  color: #7e57c2;
+  margin-right: 4px; /* Substitui gap para consistência */
+}
+
+.user-profile-tag-remove-button {
+  cursor: pointer;
+  color: #c00;
+  margin-left: 4px;
+}
+
+.danger-button {
+  max-width: 180px;
+}
